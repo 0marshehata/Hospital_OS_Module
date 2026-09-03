@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<templates id="reception_dashboard" xml:space="preserve">
+    <t t-name="ReceptionDashboard" owl="1">
+        <div class="hms-dashboard-wrapper" t-ref="root">
+            <!-- Header Banner -->
+            <div class="hms-header-banner hms-animate-fade-in">
+                <div>
+                    <h2>
+                        <span class="hms-pulse-dot" title="Live System"/>
+                        Reception &amp; Patient Care Desk
+                    </h2>
+                    <p>Register patients, schedule outpatient appointments, admit inpatients, and monitor ward occupancy.</p>
+                </div>
+                <div>
+                    <button class="hms-btn hms-btn-secondary" t-on-click="() => this.loadInitialData()">
+                        <i class="fa fa-refresh me-1" title="Refresh Data"/> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Skeleton Loading State -->
+            <t t-if="state.loading">
+                <div class="hms-kpi-grid mb-4">
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                </div>
+                <div class="hms-card p-4">
+                    <div class="hms-skeleton hms-skeleton-line short"/>
+                    <div class="hms-skeleton hms-skeleton-line full"/>
+                    <div class="hms-skeleton hms-skeleton-line medium"/>
+                </div>
+            </t>
+
+            <!-- Loaded Content -->
+            <t t-else="">
+                <!-- KPI Metric Grid -->
+                <div class="hms-kpi-grid">
+                    <div class="hms-kpi-card hms-animate-fade-in hms-delay-1" t-on-click="() => this.setTab('appointment')">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-calendar-check-o" title="Today's Bookings"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.todayBookings"/></span>
+                            <span class="hms-kpi-label">Today's Bookings</span>
+                        </div>
+                    </div>
+                    <div class="hms-kpi-card kpi-warning hms-animate-fade-in hms-delay-2" t-on-click="() => this.setTab('appointment')">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-user-clock" title="Waiting / Draft Consultations"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.waitingConsultations"/></span>
+                            <span class="hms-kpi-label">Waiting / Draft</span>
+                        </div>
+                    </div>
+                    <div class="hms-kpi-card kpi-secondary hms-animate-fade-in hms-delay-3" t-on-click="() => this.setTab('inpatient')">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-bed" title="Admitted Inpatients"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.admittedInpatients"/></span>
+                            <span class="hms-kpi-label">Admitted Inpatients</span>
+                        </div>
+                    </div>
+                    <div class="hms-kpi-card kpi-success hms-animate-fade-in hms-delay-4" t-on-click="() => this.setTab('room_ward')">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-user-md" title="Available Doctors"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.availableDoctors"/></span>
+                            <span class="hms-kpi-label">Available Doctors</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Primary Navigation Tabs -->
+                <div class="hms-tabs-nav hms-animate-fade-in">
+                    <button t-attf-class="hms-tab-btn #{state.activeTab === 'patient' ? 'active' : ''}"
+                            t-on-click="() => this.setTab('patient')">
+                        <i class="fa fa-user-plus" title="Register"/> Patient Registration
+                    </button>
+                    <button t-attf-class="hms-tab-btn #{state.activeTab === 'appointment' ? 'active' : ''}"
+                            t-on-click="() => this.setTab('appointment')">
+                        <i class="fa fa-calendar" title="Outpatient"/> Outpatient Booking
+                    </button>
+                    <button t-attf-class="hms-tab-btn #{state.activeTab === 'inpatient' ? 'active' : ''}"
+                            t-on-click="() => this.setTab('inpatient')">
+                        <i class="fa fa-hospital-o" title="Inpatient"/> Inpatient Admission
+                    </button>
+                    <button t-attf-class="hms-tab-btn #{state.activeTab === 'room_ward' ? 'active' : ''}"
+                            t-on-click="() => this.setTab('room_ward')">
+                        <i class="fa fa-building" title="Rooms and Wards"/> Rooms &amp; Wards (<t t-esc="state.room_data.length"/>)
+                    </button>
+                </div>
+
+                <!-- Tab 1: Patient Registration Form -->
+                <div t-if="state.activeTab === 'patient'" class="hms-card hms-animate-fade-in">
+                    <div class="hms-card-header">
+                        <h3><i class="fa fa-id-card-o text-primary" title="Registration"/> New Patient Registration</h3>
+                    </div>
+                    <div class="hms-card-body">
+                        <div class="hms-form-grid">
+                            <div class="hms-form-group">
+                                <label>Full Name *</label>
+                                <input type="text" class="form-control" placeholder="e.g. Eleanor Vance"
+                                       t-model="state.patientForm.name"/>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Phone Number *</label>
+                                <input type="tel" class="form-control" placeholder="+1 (555) 012-3456"
+                                       t-model="state.patientForm.phone"/>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Email Address</label>
+                                <input type="email" class="form-control" placeholder="patient@example.com"
+                                       t-model="state.patientForm.email"/>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Date of Birth</label>
+                                <input type="date" class="form-control"
+                                       t-model="state.patientForm.date_of_birth"/>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Blood Group &amp; Rh</label>
+                                <div class="d-flex gap-2">
+                                    <select class="form-control" t-model="state.patientForm.blood_group">
+                                        <option value="a">A</option>
+                                        <option value="b">B</option>
+                                        <option value="ab">AB</option>
+                                        <option value="o">O</option>
+                                    </select>
+                                    <select class="form-control" style="max-width: 90px;" t-model="state.patientForm.rh_type">
+                                        <option value="+">+ve</option>
+                                        <option value="-">-ve</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Gender</label>
+                                <div class="hms-radio-group">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="reg_gender" id="reg-male" value="male"
+                                               t-model="state.patientForm.gender"/>
+                                        <label class="form-check-label" for="reg-male">Male</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="reg_gender" id="reg-female" value="female"
+                                               t-model="state.patientForm.gender"/>
+                                        <label class="form-check-label" for="reg-female">Female</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="reg_gender" id="reg-other" value="other"
+                                               t-model="state.patientForm.gender"/>
+                                        <label class="form-check-label" for="reg-other">Other</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Marital Status</label>
+                                <select class="form-control" t-model="state.patientForm.marital_status">
+                                    <option value="married">Married</option>
+                                    <option value="unmarried">Unmarried</option>
+                                    <option value="widow">Widow</option>
+                                    <option value="widower">Widower</option>
+                                    <option value="divorcee">Divorcee</option>
+                                </select>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Patient Photo</label>
+                                <input type="file" class="form-control" accept="image/*"
+                                       t-on-change="onPatientImageChange"/>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+                            <button class="hms-btn hms-btn-primary" t-on-click="savePatient">
+                                <i class="fa fa-save me-1" title="Save Patient"/> Save Patient Record
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Outpatient Booking Form -->
+                <div t-if="state.activeTab === 'appointment'" class="hms-card hms-animate-fade-in">
+                    <div class="hms-card-header">
+                        <h3><i class="fa fa-calendar-plus-o text-primary" title="Booking"/> Outpatient Consultation Booking</h3>
+                    </div>
+                    <div class="hms-card-body">
+                        <div class="hms-form-grid">
+                            <div class="hms-form-group">
+                                <label>Patient Card Status</label>
+                                <select class="form-control" t-model="state.opForm.hasCard">
+                                    <option value="have_card">Registered Patient (Have Card)</option>
+                                    <option value="dont_have_card">Unregistered (No Card Yet)</option>
+                                </select>
+                            </div>
+                            <div t-if="state.opForm.hasCard === 'have_card'" class="hms-form-group">
+                                <label>Select Patient *</label>
+                                <select class="form-control" t-on-change="onPatientSelect">
+                                    <option value="">Select Existing Patient...</option>
+                                    <t t-foreach="state.patient_lst" t-as="pat" t-key="pat.id">
+                                        <option t-att-value="pat.id">
+                                            <t t-esc="pat.patient_seq"/> - <t t-esc="pat.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Patient Name *</label>
+                                <input type="text" class="form-control" placeholder="Patient Name"
+                                       t-model="state.opForm.name"/>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Phone Number</label>
+                                <input type="tel" class="form-control" placeholder="Phone"
+                                       t-model="state.opForm.phone"/>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Date of Birth</label>
+                                <input type="date" class="form-control"
+                                       t-model="state.opForm.dob"/>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Blood Group &amp; Rh</label>
+                                <div class="d-flex gap-2">
+                                    <select class="form-control" t-model="state.opForm.blood_group">
+                                        <option value="a">A</option>
+                                        <option value="b">B</option>
+                                        <option value="ab">AB</option>
+                                        <option value="o">O</option>
+                                    </select>
+                                    <select class="form-control" style="max-width: 90px;" t-model="state.opForm.rh_type">
+                                        <option value="+">+ve</option>
+                                        <option value="-">-ve</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Gender</label>
+                                <div class="hms-radio-group">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="op_gender" id="op-male" value="male"
+                                               t-model="state.opForm.gender"/>
+                                        <label class="form-check-label" for="op-male">Male</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="op_gender" id="op-female" value="female"
+                                               t-model="state.opForm.gender"/>
+                                        <label class="form-check-label" for="op-female">Female</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="op_gender" id="op-other" value="other"
+                                               t-model="state.opForm.gender"/>
+                                        <label class="form-check-label" for="op-other">Other</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Consultation Date *</label>
+                                <input type="date" class="form-control"
+                                       t-model="state.opForm.date"/>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Attending Doctor Allocation *</label>
+                                <select class="form-control" t-model="state.opForm.doctor_id">
+                                    <option value="">Choose Assigned Doctor...</option>
+                                    <t t-foreach="state.dr_lst" t-as="dr" t-key="dr.id">
+                                        <option t-att-value="dr.id">
+                                            <t t-esc="dr.display_name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Slot / Time</label>
+                                <input type="text" class="form-control" placeholder="0.00"
+                                       t-model="state.opForm.slot"/>
+                            </div>
+                            <div class="hms-form-group" style="grid-column: 1 / -1;">
+                                <label>Reason for Consultation</label>
+                                <textarea class="form-control" rows="2" placeholder="Symptoms, medical history, or referral notes..."
+                                          t-model="state.opForm.reason"/>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+                            <button class="hms-btn hms-btn-primary" t-on-click="saveOutPatient">
+                                <i class="fa fa-check me-1" title="Book"/> Book Outpatient Appointment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Inpatient Admission Form -->
+                <div t-if="state.activeTab === 'inpatient'" class="hms-card hms-animate-fade-in">
+                    <div class="hms-card-header">
+                        <h3><i class="fa fa-bed text-primary" title="Inpatient"/> Inpatient Hospital Admission</h3>
+                    </div>
+                    <div class="hms-card-body">
+                        <div class="hms-form-grid">
+                            <div class="hms-form-group">
+                                <label>Select Patient *</label>
+                                <select class="form-control" t-model="state.inpatientForm.patient_id">
+                                    <option value="">Select Patient...</option>
+                                    <t t-foreach="state.patient_lst" t-as="pat" t-key="pat.id">
+                                        <option t-att-value="pat.id">
+                                            <t t-esc="pat.patient_seq"/> - <t t-esc="pat.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Admission Type *</label>
+                                <select class="form-control" t-model="state.inpatientForm.admission_type">
+                                    <option value="routine">Routine Admission</option>
+                                    <option value="emergency">Emergency Admission</option>
+                                </select>
+                            </div>
+                            <div class="hms-form-group">
+                                <label>Attending Doctor *</label>
+                                <select class="form-control" t-model="state.inpatientForm.attending_doctor_id">
+                                    <option value="">Select Doctor...</option>
+                                    <t t-foreach="state.attending_dr_lst" t-as="doc" t-key="doc.id">
+                                        <option t-att-value="doc.id">
+                                            <t t-esc="doc.display_name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="hms-form-group" style="grid-column: 1 / -1;">
+                                <label>Reason for Admission</label>
+                                <textarea class="form-control" rows="3" placeholder="Condition, clinical diagnosis, surgical planning..."
+                                          t-model="state.inpatientForm.reason_of_admission"/>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+                            <button class="hms-btn hms-btn-primary" t-on-click="saveInPatient">
+                                <i class="fa fa-plus-circle me-1" title="Admit"/> Process Admission
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Rooms & Wards Live Occupancy -->
+                <div t-if="state.activeTab === 'room_ward'" class="hms-card hms-animate-fade-in">
+                    <div class="hms-card-header">
+                        <div class="d-flex align-items-center gap-3">
+                            <button t-attf-class="hms-btn #{state.roomWardTab === 'room' ? 'hms-btn-primary' : 'hms-btn-secondary'}"
+                                    t-on-click="() => this.setRoomWardTab('room')">
+                                <i class="fa fa-door-open me-1" title="Rooms"/> Patient Rooms (<t t-esc="state.room_data.length"/>)
+                            </button>
+                            <button t-attf-class="hms-btn #{state.roomWardTab === 'ward' ? 'hms-btn-primary' : 'hms-btn-secondary'}"
+                                    t-on-click="() => this.setRoomWardTab('ward')">
+                                <i class="fa fa-hospital-o me-1" title="Wards"/> Hospital Wards (<t t-esc="state.ward_data.length"/>)
+                            </button>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 small text-muted">
+                            <span>Occupancy: <strong class="text-primary"><t t-esc="roomOccupancyRate"/>%</strong></span>
+                            <span>(<t t-esc="availableRoomsCount"/> Rooms Available)</span>
+                        </div>
+                    </div>
+                    <div class="hms-card-body p-0">
+                        <!-- Rooms Table -->
+                        <div t-if="state.roomWardTab === 'room'" class="table-responsive">
+                            <table class="hms-table">
+                                <thead>
+                                    <tr>
+                                        <th>Room Number</th>
+                                        <th>Bed Type</th>
+                                        <th>Daily Rent</th>
+                                        <th>Occupancy Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-if="state.room_data.length === 0">
+                                        <tr>
+                                            <td colspan="4" class="p-0">
+                                                <div class="hms-empty-state">
+                                                    <div class="hms-empty-icon">
+                                                        <i class="fa fa-bed" title="No rooms"/>
+                                                    </div>
+                                                    <div class="hms-empty-title">No Hospital Rooms Registered</div>
+                                                    <div class="hms-empty-desc">Create patient rooms in Hospital Infrastructure to track live bed occupancies.</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-foreach="state.room_data" t-as="room" t-key="room.id">
+                                        <tr>
+                                            <td class="fw-bold"><t t-esc="room.display_name"/></td>
+                                            <td><t t-esc="room.bed_type"/></td>
+                                            <td><t t-esc="room.rent"/> <t t-esc="state.currencySymbol"/></td>
+                                            <td>
+                                                <t t-if="room.state === 'available'">
+                                                    <span class="hms-badge hms-badge-success">Available</span>
+                                                </t>
+                                                <t t-elif="room.state === 'occupied'">
+                                                    <span class="hms-badge hms-badge-danger">Occupied</span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="hms-badge hms-badge-warning"><t t-esc="room.state"/></span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Wards Table -->
+                        <div t-if="state.roomWardTab === 'ward'" class="table-responsive">
+                            <table class="hms-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ward Name</th>
+                                        <th>Building Block</th>
+                                        <th>Floor</th>
+                                        <th>Available Beds</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-if="state.ward_data.length === 0">
+                                        <tr>
+                                            <td colspan="4" class="p-0">
+                                                <div class="hms-empty-state">
+                                                    <div class="hms-empty-icon">
+                                                        <i class="fa fa-hospital-o" title="No wards"/>
+                                                    </div>
+                                                    <div class="hms-empty-title">No Hospital Wards Configured</div>
+                                                    <div class="hms-empty-desc">Add hospital ward blocks and allocate bed capacities in Infrastructure.</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-foreach="state.ward_data" t-as="ward" t-key="ward.id">
+                                        <tr>
+                                            <td class="fw-bold"><t t-esc="ward.display_name"/></td>
+                                            <td><t t-esc="ward.building_id ? ward.building_id[1] : '-'"/></td>
+                                            <td><t t-esc="ward.floor_no"/></td>
+                                            <td>
+                                                <span class="hms-badge hms-badge-primary">
+                                                    <t t-esc="ward.bed_count"/> Beds
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

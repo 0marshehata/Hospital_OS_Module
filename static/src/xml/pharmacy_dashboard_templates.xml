@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<templates id="pharmacy_dashboard" xml:space="preserve">
+    <t t-name="PharmacyDashboard" owl="1">
+        <div class="hms-dashboard-wrapper" t-ref="root">
+            <!-- Header Banner -->
+            <div class="hms-header-banner hms-animate-fade-in">
+                <div>
+                    <h2>
+                        <span class="hms-pulse-dot" title="Live System"/>
+                        Hospital Pharmacy &amp; Dispensary Management
+                    </h2>
+                    <p>Process prescription orders, track medication and vaccine stock, and monitor low inventory warnings.</p>
+                </div>
+                <div>
+                    <button class="hms-btn hms-btn-secondary" t-on-click="() => this.loadInitialData()">
+                        <i class="fa fa-refresh me-1" title="Refresh Data"/> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Skeleton Loading State -->
+            <t t-if="state.loading">
+                <div class="hms-kpi-grid mb-4">
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                </div>
+                <div class="hms-card p-4">
+                    <div class="hms-skeleton hms-skeleton-line short"/>
+                    <div class="hms-skeleton hms-skeleton-line full"/>
+                </div>
+            </t>
+
+            <!-- Loaded Content -->
+            <t t-else="">
+                <!-- KPI Metric Grid -->
+                <div class="hms-kpi-grid">
+                    <div class="hms-kpi-card hms-animate-fade-in hms-delay-1" t-on-click="() => this.setTab('medicines')">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-medkit" title="Medicines in Formulary"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.totalMedicines"/></span>
+                            <span class="hms-kpi-label">Formulary Medicines</span>
+                        </div>
+                    </div>
+                    <div class="hms-kpi-card kpi-secondary hms-animate-fade-in hms-delay-2" t-on-click="() => this.setTab('vaccines')">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-tint" title="Vaccines in Stock"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.totalVaccines"/></span>
+                            <span class="hms-kpi-label">Vaccine Stock</span>
+                        </div>
+                    </div>
+                    <div class="hms-kpi-card kpi-success hms-animate-fade-in hms-delay-3" t-on-click="() => this.setTab('orders')">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-shopping-cart" title="Orders Today"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.ordersToday"/></span>
+                            <span class="hms-kpi-label">Dispensary Orders</span>
+                        </div>
+                    </div>
+                    <div class="hms-kpi-card kpi-danger hms-animate-fade-in hms-delay-4" t-on-click="() => this.setTab('medicines')">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-exclamation-triangle" title="Low Stock Warnings"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.lowStockAlerts"/></span>
+                            <span class="hms-kpi-label">Low Stock Alerts</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Health Ratio Summary -->
+                <div class="hms-workload-bar-wrapper hms-animate-fade-in">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold small text-uppercase text-muted">Formulary Inventory Health</span>
+                        <span class="fw-bold text-primary"><t t-esc="stockHealthRate"/>% In Good Standing</span>
+                    </div>
+                    <div class="hms-progress-stacked">
+                        <div class="hms-progress-segment seg-success" t-attf-style="width: {{stockHealthRate}}%;" title="Adequate Stock"/>
+                        <div class="hms-progress-segment seg-danger" t-attf-style="width: {{100 - stockHealthRate}}%;" title="Low Stock"/>
+                    </div>
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span><i class="fa fa-circle text-success me-1" title="Adequate"/> Normal Stock: <t t-esc="state.kpi.totalMedicines - state.kpi.lowStockAlerts"/></span>
+                        <span><i class="fa fa-circle text-danger me-1" title="Low"/> Critical Low (&lt;= 5): <t t-esc="state.kpi.lowStockAlerts"/></span>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <div class="hms-tabs-nav hms-animate-fade-in">
+                    <button t-attf-class="hms-tab-btn #{state.activeTab === 'pos' ? 'active' : ''}"
+                            t-on-click="() => this.setTab('pos')">
+                        <i class="fa fa-calculator" title="POS"/> Dispense Prescription (POS)
+                    </button>
+                    <button t-attf-class="hms-tab-btn #{state.activeTab === 'medicines' ? 'active' : ''}"
+                            t-on-click="() => this.setTab('medicines')">
+                        <i class="fa fa-pills" title="Medicines"/> Medicine Inventory (<t t-esc="state.medicines.length"/>)
+                    </button>
+                    <button t-attf-class="hms-tab-btn #{state.activeTab === 'vaccines' ? 'active' : ''}"
+                            t-on-click="() => this.setTab('vaccines')">
+                        <i class="fa fa-syringe" title="Vaccines"/> Vaccine Stock (<t t-esc="state.vaccines.length"/>)
+                    </button>
+                    <button t-attf-class="hms-tab-btn #{state.activeTab === 'orders' ? 'active' : ''}"
+                            t-on-click="() => this.setTab('orders')">
+                        <i class="fa fa-history" title="Orders"/> Recent Dispensary Orders (<t t-esc="state.recentOrders.length"/>)
+                    </button>
+                </div>
+
+                <!-- Tab 1: Point of Sale / Dispense Prescription -->
+                <div t-if="state.activeTab === 'pos'" class="hms-animate-fade-in">
+                    <div class="row g-4">
+                        <!-- Left: Patient Search & Info -->
+                        <div class="col-lg-4 col-12">
+                            <div class="hms-card">
+                                <div class="hms-card-header">
+                                    <h3><i class="fa fa-user-circle text-primary" title="Patient"/> Patient Identification</h3>
+                                </div>
+                                <div class="hms-card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Search Patient (Name, ID, Phone)</label>
+                                        <input type="text" class="form-control"
+                                               placeholder="Type to search patient..."
+                                               t-att-value="state.pos.patientSearch"
+                                               t-on-input="onPatientSearchInput"/>
+                                    </div>
+
+                                    <!-- Patient Preview Card if Found -->
+                                    <t t-if="state.pos.selectedPatient">
+                                        <div class="hms-patient-preview-card">
+                                            <t t-if="state.pos.selectedPatient.image_1920">
+                                                <img t-attf-src="data:image/png;base64,{{state.pos.selectedPatient.image_1920}}"
+                                                     class="hms-patient-avatar" alt="Patient Avatar"/>
+                                            </t>
+                                            <t t-else="">
+                                                <div class="hms-kpi-icon" style="width: 72px; height: 72px;">
+                                                    <i class="fa fa-user fa-2x" title="Patient"/>
+                                                </div>
+                                            </t>
+                                            <div class="overflow-hidden">
+                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle mb-1">
+                                                    <t t-esc="state.pos.selectedPatient.patient_seq"/>
+                                                </span>
+                                                <h5 class="mb-1 text-truncate"><t t-esc="state.pos.selectedPatient.name"/></h5>
+                                                <div class="small text-muted" t-if="state.pos.selectedPatient.phone">
+                                                    <i class="fa fa-phone me-1" title="Phone"/> <t t-esc="state.pos.selectedPatient.phone"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="alert alert-info small mb-0">
+                                            <i class="fa fa-info-circle me-1" title="Info"/> Search and select an existing patient to assign this pharmacy sale.
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Prescription Order Lines -->
+                        <div class="col-lg-8 col-12">
+                            <div class="hms-card">
+                                <div class="hms-card-header">
+                                    <h3><i class="fa fa-list-alt text-primary" title="Prescription"/> Prescription Line Items</h3>
+                                </div>
+                                <div class="hms-card-body">
+                                    <div class="table-responsive">
+                                        <table class="hms-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="min-width: 220px;">Medication</th>
+                                                    <th style="width: 100px; text-align: center;">Qty</th>
+                                                    <th style="width: 140px;">UOM</th>
+                                                    <th style="width: 110px; text-align: right;">Unit Price</th>
+                                                    <th style="width: 120px; text-align: right;">Subtotal</th>
+                                                    <th style="width: 60px; text-align: center;">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="state.pos.lines" t-as="line" t-key="line.id">
+                                                    <PharmacyOrderLines
+                                                        line="line"
+                                                        id="line.id"
+                                                        medicines="state.allProducts"
+                                                        units="state.allUoms"
+                                                        currencySymbol="state.currencySymbol"
+                                                        updateOrderLine.bind="updateOrderLine"
+                                                        removeLine.bind="removeLine"/>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="mt-2">
+                                        <button type="button" class="hms-btn hms-btn-secondary" t-on-click="addLine">
+                                            <i class="fa fa-plus me-1" title="Add Line"/> Add Medication
+                                        </button>
+                                    </div>
+
+                                    <!-- Order Grand Total & Checkout Action -->
+                                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                                        <div class="fs-5">
+                                            <span class="text-muted me-2">Grand Total:</span>
+                                            <strong class="text-primary fs-4"><t t-esc="grandTotal"/> <t t-esc="state.currencySymbol"/></strong>
+                                        </div>
+                                        <button class="hms-btn hms-btn-primary px-4 py-2" t-on-click="submitPharmacyOrder">
+                                            <i class="fa fa-check-circle me-1" title="Dispense"/> Dispense &amp; Create Invoice
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Medicine Inventory -->
+                <div t-if="state.activeTab === 'medicines'" class="hms-card hms-animate-fade-in">
+                    <div class="hms-card-header">
+                        <h3><i class="fa fa-medkit text-primary" title="Medicines"/> Hospital Medicine Formulary</h3>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="text" class="form-control form-control-sm" placeholder="Filter medication..."
+                                   style="max-width: 170px;"
+                                   t-model="state.searchQuery"/>
+                        </div>
+                    </div>
+                    <div class="hms-card-body p-0">
+                        <div class="table-responsive">
+                            <table class="hms-table">
+                                <thead>
+                                    <tr>
+                                        <th>Medicine Name</th>
+                                        <th>Sales Price</th>
+                                        <th>Unit of Measure</th>
+                                        <th>Quantity On Hand</th>
+                                        <th>Inventory Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-if="filteredMedicines.length === 0">
+                                        <tr>
+                                            <td colspan="5" class="p-0">
+                                                <div class="hms-empty-state">
+                                                    <div class="hms-empty-icon">
+                                                        <i class="fa fa-medkit" title="No medicines"/>
+                                                    </div>
+                                                    <div class="hms-empty-title">No Medicines Found</div>
+                                                    <div class="hms-empty-desc">Create pharmaceutical products with type 'Medicine' in Product Catalog.</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-foreach="filteredMedicines" t-as="med" t-key="med.id">
+                                        <tr>
+                                            <td class="fw-bold"><t t-esc="med.name"/></td>
+                                            <td><t t-esc="med.list_price"/> <t t-esc="state.currencySymbol"/></td>
+                                            <td><t t-esc="med.uom_id ? med.uom_id[1] : 'Units'"/></td>
+                                            <td class="fw-bold"><t t-esc="med.qty_available"/></td>
+                                            <td>
+                                                <t t-if="med.qty_available &lt;= 5">
+                                                    <span class="hms-badge hms-badge-danger">
+                                                        <i class="fa fa-warning" title="Low Stock"/> Low Stock
+                                                    </span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="hms-badge hms-badge-success">
+                                                        <i class="fa fa-check" title="Available"/> In Stock
+                                                    </span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Vaccine Stock -->
+                <div t-if="state.activeTab === 'vaccines'" class="hms-card hms-animate-fade-in">
+                    <div class="hms-card-header">
+                        <h3><i class="fa fa-tint text-secondary" title="Vaccines"/> Vaccine Refrigeration &amp; Stock</h3>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="text" class="form-control form-control-sm" placeholder="Filter vaccine..."
+                                   style="max-width: 170px;"
+                                   t-model="state.searchQuery"/>
+                        </div>
+                    </div>
+                    <div class="hms-card-body p-0">
+                        <div class="table-responsive">
+                            <table class="hms-table">
+                                <thead>
+                                    <tr>
+                                        <th>Vaccine Name</th>
+                                        <th>Price</th>
+                                        <th>Dose Unit</th>
+                                        <th>Vials On Hand</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-if="filteredVaccines.length === 0">
+                                        <tr>
+                                            <td colspan="4" class="p-0">
+                                                <div class="hms-empty-state">
+                                                    <div class="hms-empty-icon">
+                                                        <i class="fa fa-tint" title="No vaccines"/>
+                                                    </div>
+                                                    <div class="hms-empty-title">No Vaccines Found</div>
+                                                    <div class="hms-empty-desc">Register vaccine products with type 'Vaccine' in Product Catalog.</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-foreach="filteredVaccines" t-as="vac" t-key="vac.id">
+                                        <tr>
+                                            <td class="fw-bold"><t t-esc="vac.name"/></td>
+                                            <td><t t-esc="vac.list_price"/> <t t-esc="state.currencySymbol"/></td>
+                                            <td><t t-esc="vac.uom_id ? vac.uom_id[1] : 'Doses'"/></td>
+                                            <td class="fw-bold text-primary"><t t-esc="vac.qty_available"/> Vials</td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Recent Dispensary Orders -->
+                <div t-if="state.activeTab === 'orders'" class="hms-card hms-animate-fade-in">
+                    <div class="hms-card-header">
+                        <h3><i class="fa fa-shopping-cart text-success" title="Orders"/> Recent Pharmacy Sales Orders</h3>
+                    </div>
+                    <div class="hms-card-body p-0">
+                        <div class="table-responsive">
+                            <table class="hms-table">
+                                <thead>
+                                    <tr>
+                                        <th>Order Number</th>
+                                        <th>Patient / Customer</th>
+                                        <th>Date</th>
+                                        <th>Total Amount</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-if="state.recentOrders.length === 0">
+                                        <tr>
+                                            <td colspan="6" class="p-0">
+                                                <div class="hms-empty-state">
+                                                    <div class="hms-empty-icon">
+                                                        <i class="fa fa-shopping-cart" title="No orders"/>
+                                                    </div>
+                                                    <div class="hms-empty-title">No Orders Logged</div>
+                                                    <div class="hms-empty-desc">Completed pharmacy orders will appear here.</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-foreach="state.recentOrders" t-as="ord" t-key="ord.id">
+                                        <tr>
+                                            <td class="fw-bold"><t t-esc="ord.name"/></td>
+                                            <td><t t-esc="ord.partner_id ? ord.partner_id[1] : '-'"/></td>
+                                            <td><t t-esc="ord.date_order"/></td>
+                                            <td class="fw-bold text-success"><t t-esc="ord.amount_total"/> <t t-esc="state.currencySymbol"/></td>
+                                            <td>
+                                                <t t-if="ord.state === 'sale'">
+                                                    <span class="hms-badge hms-badge-success">Confirmed Sale</span>
+                                                </t>
+                                                <t t-elif="ord.state === 'draft'">
+                                                    <span class="hms-badge hms-badge-warning">Quotation</span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="hms-badge hms-badge-info"><t t-esc="ord.state"/></span>
+                                                </t>
+                                            </td>
+                                            <td class="text-end">
+                                                <button class="hms-btn hms-btn-secondary py-1 px-2" t-on-click="() => this.openSaleOrder(ord.id)" title="Open Order">
+                                                    <i class="fa fa-external-link" title="Open"/> Open
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

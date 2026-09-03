@@ -1,0 +1,23 @@
+/* Doctor Dashboard Custom Styling */
+.hms-doctor-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.hms-doctor-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 992px) {
+  .hms-doctor-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}

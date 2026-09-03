@@ -1,0 +1,886 @@
+/* ==========================================================================
+   Hospital Management - Premium Enterprise Healthcare SaaS Design System
+   Maintained by Omar Shehata
+   ========================================================================== */
+
+:root {
+  /* Medical Healthcare Palette */
+  --hms-primary: #0d9488;
+  --hms-primary-hover: #0f766e;
+  --hms-primary-light: #f0fdfa;
+  --hms-primary-border: #99f6e4;
+  --hms-primary-ring: rgba(13, 148, 136, 0.25);
+  
+  --hms-secondary: #0284c7;
+  --hms-secondary-hover: #0369a1;
+  --hms-secondary-light: #f0f9ff;
+  --hms-secondary-border: #bae6fd;
+
+  --hms-success: #10b981;
+  --hms-success-hover: #059669;
+  --hms-success-light: #ecfdf5;
+  --hms-success-border: #a7f3d0;
+
+  --hms-warning: #f59e0b;
+  --hms-warning-hover: #d97706;
+  --hms-warning-light: #fffbeb;
+  --hms-warning-border: #fde68a;
+
+  --hms-danger: #ef4444;
+  --hms-danger-hover: #dc2626;
+  --hms-danger-light: #fef2f2;
+  --hms-danger-border: #fecaca;
+
+  --hms-info: #6366f1;
+  --hms-info-hover: #4f46e5;
+  --hms-info-light: #eef2ff;
+  --hms-info-border: #c7d2fe;
+
+  /* Neutral Scale */
+  --hms-bg: #f8fafc;
+  --hms-surface: #ffffff;
+  --hms-border: #e2e8f0;
+  --hms-border-subtle: #f1f5f9;
+  --hms-border-focus: #0d9488;
+  --hms-text-main: #0f172a;
+  --hms-text-muted: #64748b;
+  --hms-text-subtle: #94a3b8;
+
+  /* Elevation */
+  --hms-shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.05);
+  --hms-shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.03);
+  --hms-shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.07), 0 4px 6px -4px rgba(15, 23, 42, 0.03);
+  --hms-shadow-hover: 0 10px 20px -3px rgba(13, 148, 136, 0.14), 0 4px 6px -2px rgba(15, 23, 42, 0.05);
+
+  /* Radius */
+  --hms-radius-sm: 6px;
+  --hms-radius-md: 10px;
+  --hms-radius-lg: 14px;
+  --hms-radius-full: 9999px;
+
+  /* Animations & Timings */
+  --hms-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --hms-transition-bounce: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ==========================================================================
+   Keyframes & Animations
+   ========================================================================== */
+@keyframes hmsFadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hmsShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes hmsPulseLive {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.hms-animate-fade-in {
+  animation: hmsFadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Stagger entrance delays */
+.hms-delay-1 { animation-delay: 0.05s; }
+.hms-delay-2 { animation-delay: 0.10s; }
+.hms-delay-3 { animation-delay: 0.15s; }
+.hms-delay-4 { animation-delay: 0.20s; }
+.hms-delay-5 { animation-delay: 0.25s; }
+
+/* Pulse dot */
+.hms-pulse-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: var(--hms-radius-full);
+  background-color: var(--hms-success);
+  animation: hmsPulseLive 2s infinite;
+  margin-right: 0.5rem;
+}
+
+/* ==========================================================================
+   Skeleton Shimmer Loading
+   ========================================================================== */
+.hms-skeleton {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: hmsShimmer 1.6s infinite linear;
+  border-radius: var(--hms-radius-sm);
+  display: inline-block;
+}
+
+.hms-skeleton-card {
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-md);
+  padding: 1.5rem;
+  height: 120px;
+}
+
+.hms-skeleton-line {
+  height: 16px;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+}
+
+.hms-skeleton-line.short { width: 40%; }
+.hms-skeleton-line.medium { width: 70%; }
+.hms-skeleton-line.full { width: 100%; }
+
+/* ==========================================================================
+   Dashboard Global Layout
+   ========================================================================== */
+.hms-dashboard-wrapper {
+  background-color: var(--hms-bg);
+  min-height: 100%;
+  width: 100%;
+  max-width: 100%;
+  padding: 1.5rem;
+  font-family: inherit;
+  color: var(--hms-text-main);
+  box-sizing: border-box;
+  overflow-x: clip;
+  position: relative;
+}
+
+.hms-dashboard-wrapper,
+.hms-dashboard-wrapper *,
+.hms-dashboard-wrapper *::before,
+.hms-dashboard-wrapper *::after {
+  box-sizing: border-box;
+}
+
+.hms-dashboard-wrapper .row {
+  margin-left: 0;
+  margin-right: 0;
+  max-width: 100%;
+}
+
+.hms-dashboard-wrapper .row > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Dashboard Header Banner */
+.hms-header-banner {
+  background: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
+  border-radius: var(--hms-radius-lg);
+  padding: 1.75rem 2rem;
+  color: #ffffff;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--hms-shadow-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hms-header-banner::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  border-radius: var(--hms-radius-full);
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+
+.hms-header-banner h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  color: #ffffff !important;
+  letter-spacing: -0.02em;
+}
+
+.hms-header-banner p {
+  margin-bottom: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+}
+
+/* ==========================================================================
+   KPI Summary Grid & Interactive Cards
+   ========================================================================== */
+.hms-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.hms-kpi-card {
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-md);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: var(--hms-shadow-sm);
+  transition: var(--hms-transition);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+.hms-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--hms-shadow-hover);
+  border-color: var(--hms-primary-border);
+}
+
+.hms-kpi-card:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.hms-kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--hms-primary);
+  opacity: 0.85;
+}
+
+.hms-kpi-card.kpi-secondary::before { background: var(--hms-secondary); }
+.hms-kpi-card.kpi-success::before { background: var(--hms-success); }
+.hms-kpi-card.kpi-warning::before { background: var(--hms-warning); }
+.hms-kpi-card.kpi-danger::before { background: var(--hms-danger); }
+.hms-kpi-card.kpi-info::before { background: var(--hms-info); }
+
+.hms-kpi-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--hms-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
+  transition: var(--hms-transition);
+}
+
+.hms-kpi-card:hover .hms-kpi-icon {
+  transform: scale(1.08);
+}
+
+.kpi-secondary .hms-kpi-icon { background: var(--hms-secondary-light); color: var(--hms-secondary); }
+.kpi-success .hms-kpi-icon { background: var(--hms-success-light); color: var(--hms-success); }
+.kpi-warning .hms-kpi-icon { background: var(--hms-warning-light); color: var(--hms-warning); }
+.kpi-danger .hms-kpi-icon { background: var(--hms-danger-light); color: var(--hms-danger); }
+.kpi-info .hms-kpi-icon { background: var(--hms-info-light); color: var(--hms-info); }
+
+.hms-kpi-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.hms-kpi-value {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--hms-text-main);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.hms-kpi-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--hms-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.25rem;
+}
+
+/* ==========================================================================
+   Operational Ratio & Progress Bars
+   ========================================================================== */
+.hms-workload-bar-wrapper {
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-md);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--hms-shadow-sm);
+}
+
+.hms-progress-stacked {
+  display: flex;
+  height: 10px;
+  overflow: hidden;
+  border-radius: var(--hms-radius-full);
+  background-color: #e2e8f0;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.hms-progress-segment {
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hms-progress-segment.seg-primary { background-color: var(--hms-primary); }
+.hms-progress-segment.seg-success { background-color: var(--hms-success); }
+.hms-progress-segment.seg-warning { background-color: var(--hms-warning); }
+.hms-progress-segment.seg-danger { background-color: var(--hms-danger); }
+
+/* ==========================================================================
+   Modern Clean Tabs
+   ========================================================================== */
+.hms-tabs-nav {
+  display: flex;
+  gap: 0.5rem;
+  background: #f1f5f9;
+  padding: 0.375rem;
+  border-radius: var(--hms-radius-md);
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.hms-tab-btn {
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--hms-radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--hms-text-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: var(--hms-transition);
+}
+
+.hms-tab-btn:hover {
+  color: var(--hms-text-main);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.hms-tab-btn.active {
+  background: var(--hms-surface);
+  color: var(--hms-primary);
+  box-shadow: var(--hms-shadow-sm);
+}
+
+.hms-tab-btn:focus-visible {
+  outline: 2px solid var(--hms-primary);
+  outline-offset: 1px;
+}
+
+/* ==========================================================================
+   Healthcare Cards & Panels
+   ========================================================================== */
+.hms-card {
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-md);
+  box-shadow: var(--hms-shadow-sm);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  transition: var(--hms-transition);
+}
+
+.hms-card-header {
+  padding: 1.125rem 1.5rem;
+  border-bottom: 1px solid var(--hms-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+}
+
+.hms-card-header h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--hms-text-main);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.hms-card-body {
+  padding: 1.5rem;
+}
+
+/* ==========================================================================
+   Buttons with Micro-Feedback
+   ========================================================================== */
+.hms-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: var(--hms-radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: var(--hms-transition);
+  text-decoration: none;
+  user-select: none;
+}
+
+.hms-btn:focus-visible {
+  outline: 2px solid var(--hms-primary);
+  outline-offset: 2px;
+}
+
+.hms-btn:active {
+  transform: scale(0.97);
+}
+
+.hms-btn-primary {
+  background: var(--hms-primary);
+  color: #ffffff;
+}
+.hms-btn-primary:hover {
+  background: var(--hms-primary-hover);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.28);
+}
+
+.hms-btn-secondary {
+  background: #ffffff;
+  color: var(--hms-text-main);
+  border-color: var(--hms-border);
+}
+.hms-btn-secondary:hover {
+  background: #f8fafc;
+  border-color: var(--hms-text-subtle);
+}
+
+.hms-btn-danger {
+  background: var(--hms-danger-light);
+  color: var(--hms-danger);
+  border-color: var(--hms-danger-border);
+}
+.hms-btn-danger:hover {
+  background: var(--hms-danger);
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   Badges & Status Indicators
+   ========================================================================== */
+.hms-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--hms-radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.hms-badge-success { background: var(--hms-success-light); color: var(--hms-success); border: 1px solid var(--hms-success-border); }
+.hms-badge-warning { background: var(--hms-warning-light); color: var(--hms-warning); border: 1px solid var(--hms-warning-border); }
+.hms-badge-danger { background: var(--hms-danger-light); color: var(--hms-danger); border: 1px solid var(--hms-danger-border); }
+.hms-badge-info { background: var(--hms-info-light); color: var(--hms-info); border: 1px solid var(--hms-info-border); }
+.hms-badge-primary { background: var(--hms-primary-light); color: var(--hms-primary); border: 1px solid var(--hms-primary-border); }
+
+/* ==========================================================================
+   Modern Clean Tables & Controlled Horizontal Overflow
+   ========================================================================== */
+.table-responsive,
+.hms-table-responsive,
+.hms-order-table-container {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 0;
+  border-radius: var(--hms-radius-sm);
+}
+
+/* Custom slim scrollbar for webkit to prevent bulky table scrollbars */
+.table-responsive::-webkit-scrollbar,
+.hms-table-responsive::-webkit-scrollbar,
+.hms-order-table-container::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track,
+.hms-table-responsive::-webkit-scrollbar-track,
+.hms-order-table-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 9999px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb,
+.hms-table-responsive::-webkit-scrollbar-thumb,
+.hms-order-table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover,
+.hms-table-responsive::-webkit-scrollbar-thumb:hover,
+.hms-order-table-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.hms-table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.hms-table th {
+  background: #f8fafc;
+  color: var(--hms-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--hms-border);
+  text-align: left;
+}
+
+.hms-table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.hms-table tr:last-child td {
+  border-bottom: none;
+}
+
+.hms-table tr:hover td {
+  background-color: #f8fafc;
+}
+
+/* ==========================================================================
+   Professional Empty States
+   ========================================================================== */
+.hms-empty-state {
+  text-align: center;
+  padding: 3.5rem 2rem;
+}
+
+.hms-empty-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.25rem;
+  border-radius: var(--hms-radius-full);
+  background: #f1f5f9;
+  color: var(--hms-text-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+}
+
+.hms-empty-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--hms-text-main);
+  margin-bottom: 0.35rem;
+}
+
+.hms-empty-desc {
+  font-size: 0.9rem;
+  color: var(--hms-text-muted);
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   Quick Actions Row
+   ========================================================================== */
+.hms-quick-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.hms-quick-action-card {
+  flex: 1;
+  min-width: 170px;
+  background: var(--hms-surface);
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-md);
+  padding: 1.25rem;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--hms-transition);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  user-select: none;
+}
+
+.hms-quick-action-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--hms-primary);
+  box-shadow: var(--hms-shadow-md);
+}
+
+.hms-quick-action-card:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.hms-quick-action-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--hms-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  background: var(--hms-primary-light);
+  color: var(--hms-primary);
+  transition: var(--hms-transition);
+}
+
+.hms-quick-action-card:hover .hms-quick-action-icon {
+  background: var(--hms-primary);
+  color: #ffffff;
+}
+
+.hms-quick-action-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--hms-text-main);
+  margin: 0;
+}
+
+/* ==========================================================================
+   Patient Profile Card in Dashboards
+   ========================================================================== */
+.hms-patient-preview-card {
+  background: #ffffff;
+  border: 1px solid var(--hms-border);
+  border-radius: var(--hms-radius-md);
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.hms-patient-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--hms-radius-full);
+  object-fit: cover;
+  border: 3px solid var(--hms-primary-border);
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Responsive Modals & Dialogs Viewport Containment
+   ========================================================================== */
+.modal-dialog {
+  max-width: 850px;
+  width: 92vw;
+  margin: 1.5rem auto;
+}
+
+.modal-content {
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--hms-radius-md);
+}
+
+.modal-body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  max-height: calc(100vh - 170px);
+  min-width: 0;
+}
+
+/* ==========================================================================
+   Responsive Breakpoints Across Viewports (320px - 1440px+)
+   ========================================================================== */
+
+/* Large Desktop (1280px - 1440px+) */
+@media (min-width: 1280px) {
+  .hms-dashboard-wrapper {
+    padding: 1.75rem 2rem;
+  }
+  .hms-kpi-grid {
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  }
+}
+
+/* Desktop & Laptop (1025px - 1279px) */
+@media (min-width: 1025px) and (max-width: 1279px) {
+  .hms-dashboard-wrapper {
+    padding: 1.5rem;
+  }
+  .hms-kpi-grid {
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  }
+}
+
+/* Tablet Landscape & Small Laptop (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .hms-dashboard-wrapper {
+    padding: 1.25rem;
+  }
+  .hms-kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  .hms-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+/* Tablet Portrait & Large Phones (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .hms-dashboard-wrapper {
+    padding: 1rem;
+  }
+  .hms-header-banner {
+    padding: 1.25rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .hms-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.875rem;
+  }
+  .hms-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  .hms-tabs-nav {
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .hms-tab-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+/* Mobile Devices (320px - 480px, covers 320px, 375px, 414px) */
+@media (max-width: 480px) {
+  .hms-dashboard-wrapper {
+    padding: 0.625rem;
+  }
+  .hms-header-banner {
+    padding: 1rem;
+    border-radius: var(--hms-radius-md);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .hms-header-banner h2 {
+    font-size: 1.25rem;
+  }
+  .hms-header-banner p {
+    font-size: 0.82rem;
+  }
+  .hms-kpi-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  .hms-kpi-card {
+    padding: 1rem;
+  }
+  .hms-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  .hms-quick-action-card {
+    padding: 0.75rem 0.5rem;
+  }
+  .hms-quick-action-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+  .hms-quick-action-title {
+    font-size: 0.8rem;
+  }
+  .hms-card-header {
+    padding: 0.875rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .hms-card-header input {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  .hms-tabs-nav {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .hms-tab-btn {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0.5rem 0.75rem;
+  }
+  .hms-patient-preview-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  .modal-dialog {
+    max-width: 95vw;
+    margin: 0.75rem auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

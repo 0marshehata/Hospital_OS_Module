@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Hospital inpatient tree view -->
+    <record id="hospital_inpatient_view_tree" model="ir.ui.view">
+        <field name="name">hospital.inpatient.view.tree</field>
+        <field name="model">hospital.inpatient</field>
+        <field name="arch" type="xml">
+            <tree string="Inpatients" decoration-info="state == 'draft'"
+                  decoration-primary="state == 'reserve'"
+                  decoration-warning="state == 'admit'"
+                  decoration-success="state in ('invoice', 'dis')">
+                <field name="name" string="Code" decoration-bf="1"/>
+                <field name="patient_id"/>
+                <field name="attending_doctor_id"/>
+                <field name="type_admission" widget="badge" optional="show"/>
+                <field name="ward_id" optional="show"/>
+                <field name="room_id" optional="show"/>
+                <field name="bed_id" optional="show"/>
+                <field name="hosp_date" string="Admission Date"/>
+                <field name="discharge_date" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-primary="state == 'reserve'"
+                       decoration-warning="state == 'admit'"
+                       decoration-success="state in ('invoice', 'dis')"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Hospital inpatient kanban view -->
+    <record id="hospital_inpatient_view_kanban" model="ir.ui.view">
+        <field name="name">hospital.inpatient.view.kanban</field>
+        <field name="model">hospital.inpatient</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" quick_add="false" sample="1">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="attending_doctor_id"/>
+                <field name="type_admission"/>
+                <field name="ward_id"/>
+                <field name="room_id"/>
+                <field name="bed_id"/>
+                <field name="hosp_date"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click p-3 rounded shadow-sm border">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong class="text-primary fs-6"><field name="name"/></strong>
+                                <span t-if="record.type_admission.value" class="badge rounded-pill bg-light text-dark border">
+                                    <field name="type_admission"/>
+                                </span>
+                            </div>
+                            <div class="mb-2">
+                                <div class="fw-bold fs-6"><field name="patient_id"/></div>
+                                <div class="text-muted small">
+                                    <i class="fa fa-user-md me-1 text-secondary" title="Attending Doctor"/> <field name="attending_doctor_id"/>
+                                </div>
+                            </div>
+                            <div class="small text-muted mb-2">
+                                <t t-if="record.ward_id.value">
+                                    <i class="fa fa-hospital-o me-1" title="Ward"/> <field name="ward_id"/>
+                                    <t t-if="record.bed_id.value"> / Bed: <field name="bed_id"/></t>
+                                </t>
+                                <t t-elif="record.room_id.value">
+                                    <i class="fa fa-door-open me-1" title="Room"/> Room: <field name="room_id"/>
+                                </t>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top small text-muted">
+                                <span><i class="fa fa-calendar-plus-o me-1" title="Admission Date"/> <field name="hosp_date"/></span>
+                                <field name="state" widget="badge"
+                                       decoration-info="state == 'draft'"
+                                       decoration-primary="state == 'reserve'"
+                                       decoration-warning="state == 'admit'"
+                                       decoration-success="state in ('invoice', 'dis')"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Hospital inpatient form view -->
+    <record id="hospital_inpatient_view_form" model="ir.ui.view">
+        <field name="name">hospital.inpatient.view.form</field>
+        <field name="model">hospital.inpatient</field>
+        <field name="arch" type="xml">
+            <form string="Inpatient Admission">
+                <header>
+                    <button name="action_reserve" string="Reserve Bed"
+                            class="btn-secondary" type="object"
+                            invisible="state != 'draft'"/>
+                    <button name="action_admit" string="Admit Patient" type="object"
+                            class="btn-primary"
+                            invisible="state not in ['draft','reserve']"
+                            groups="hospital_managment_os.hospital_managment_group_manager,
+                            hospital_managment_os.hospital_managment_group_receptionist,
+                            hospital_managment_os.hospital_managment_group_doctor,
+                            hospital_managment_os.hospital_managment_group_nurse"/>
+                    <button name="action_create_lab_test"
+                            string="Order Lab Test"
+                            class="btn-secondary"
+                            type="object"
+                            invisible="state != 'admit'"
+                            groups="hospital_managment_os.hospital_managment_group_manager,
+                            hospital_managment_os.hospital_managment_group_receptionist,
+                            hospital_managment_os.hospital_managment_group_nurse"/>
+                    <button name="action_invoice" string="Generate Invoice"
+                            type="object" class="btn-primary"
+                            groups="hospital_managment_os.hospital_managment_group_receptionist,
+                            hospital_managment_os.hospital_managment_group_nurse"
+                            invisible="state != 'admit'"/>
+                    <button name="action_discharge" string="Discharge Patient"
+                            type="object" class="btn-secondary"
+                            groups="hospital_managment_os.hospital_managment_group_manager,
+                            hospital_managment_os.hospital_managment_group_receptionist,
+                            hospital_managment_os.hospital_managment_group_nurse"
+                            invisible="state not in ['admit','invoice']"/>
+                    <button name="action_print_prescription"
+                            string="Print Prescription"
+                            invisible="state in ['draft','reserve']"
+                            groups="hospital_managment_os.hospital_managment_group_manager,
+                            hospital_managment_os.hospital_managment_group_receptionist,
+                            hospital_managment_os.hospital_managment_group_nurse"
+                            type="object" class="btn-secondary"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,reserve,admit,invoice,dis"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button invisible="test_count == 0"
+                                name="action_view_test" type="object"
+                                class="oe_stat_button"
+                                icon="fa-flask">
+                            <field name="test_count" widget="statinfo" string="Lab Tests"/>
+                        </button>
+                        <button name="action_view_invoice" type="object"
+                                class="oe_stat_button"
+                                icon="fa-pencil-square-o"
+                                string="Invoice"
+                                invisible="is_invoice != True"/>
+                    </div>
+                    <div class="oe_title">
+                        <span class="o_form_label text-muted">Inpatient Admission</span>
+                        <h1 class="d-flex align-items-center">
+                            <field name="name" placeholder="Patient Code" required="True" class="text-primary"/>
+                        </h1>
+                    </div>
+                    <group readonly="state in ['invoice','dis']">
+                        <group string="Patient &amp; Admission">
+                            <field name="patient_id" widget="selection"
+                                   placeholder="Patient's Name"/>
+                            <field name="type_admission"/>
+                            <field name="enable_outpatient"/>
+                            <field name="is_invoice" invisible="1"/>
+                        </group>
+                        <group string="Medical Care Team">
+                            <field name="attending_doctor_id"
+                                   options="{'no_create': True, 'no_edit': True}"/>
+                            <field name="operating_doctor_id"
+                                   options="{'no_create': True, 'no_edit': True}"/>
+                        </group>
+                    </group>
+                    <group string="Admission Reason &amp; Clinical Background">
+                        <field name="reason" placeholder="Diagnosis, symptoms, or referral notes..."/>
+                    </group>
+                    <notebook>
+                        <page name="Facilities" string="Facilities &amp; Ward"
+                              invisible="state in ['draft','reserve']">
+                            <group>
+                                <group string="Accommodation Setup">
+                                    <field name="is_ward"/>
+                                    <field name="bed_type"/>
+                                    <field name="bed_id"
+                                           options="{'no_create': True, 'no_edit': True}"
+                                           invisible="is_ward != 'ward'"/>
+                                    <field name="ward_id"
+                                           options="{'no_create': True, 'no_edit': True}"
+                                           invisible="is_ward != 'ward'"/>
+                                    <field name="room_id"
+                                           options="{'no_create': True, 'no_edit': True}"
+                                           invisible="is_ward != 'room'"/>
+                                    <field name="building_id"
+                                           options="{'no_create': True, 'no_edit': True}"
+                                           invisible="is_ward != 'ward'"/>
+                                    <field name="room_building_id"
+                                           invisible="is_ward != 'room'"/>
+                                </group>
+                                <group string="Billing &amp; Duration">
+                                    <field name="admit_days"/>
+                                    <field name="bed_rent" invisible="is_ward != 'ward'"/>
+                                    <field name="room_rent" invisible="is_ward != 'room'"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="bed_rent_amount" invisible="is_ward != 'ward'"/>
+                                    <field name="room_rent_amount" invisible="is_ward != 'room'"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page name="prescription" string="Prescription"
+                              invisible="state in ['draft','reserve']">
+                            <field name="prescription_ids">
+                                <tree editable="bottom">
+                                    <field name="medicine_id" string="Medicine"/>
+                                    <field name="no_intakes" string="Dosage Frequency"/>
+                                    <field name="time" string="Time"/>
+                                    <field name="note" string="Instructions / Meal Timing"/>
+                                    <field name="quantity" string="Quantity"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="Nursing Plan" string="Nursing Plan"
+                              invisible="state in ['draft','reserve']">
+                            <field name="nursing_plan_ids">
+                                <tree editable="bottom">
+                                    <field name="date"/>
+                                    <field name="status"/>
+                                    <field name="notes"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="Doctor Rounds" string="Doctor Rounds"
+                              invisible="state in ['draft','reserve']">
+                            <field name="doctor_round_ids">
+                                <tree editable="bottom">
+                                    <field name="date"/>
+                                    <field name="doctor_id"/>
+                                    <field name="status"/>
+                                    <field name="notes"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="surgery" string="Surgeries / Procedures"
+                              invisible="state in ['draft','reserve']">
+                            <field name="surgery_ids">
+                                <tree editable="bottom">
+                                    <field name="name" string="Procedure"/>
+                                    <field name="doctor_id" string="Surgeon"
+                                           options="{'no_create': True, 'no_edit': True}"/>
+                                    <field name="planned_date"/>
+                                    <field name="date"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="payments" string="Payments &amp; Charges"
+                              invisible="state in ['draft','reserve']">
+                            <field name="payment_ids">
+                                <tree editable="bottom">
+                                    <field name="name"/>
+                                    <field name="date"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="subtotal" widget="monetary"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="public" string="Discharge &amp; Follow-up"
+                              invisible="state in ['draft','reserve']">
+                            <group>
+                                <group string="Timeline">
+                                    <field name="hosp_date" string="Admission Date"/>
+                                    <field name="discharge_date" string="Discharge Date"/>
+                                </group>
+                                <group string="Discharge Summary">
+                                    <field name="condition"/>
+                                    <field name="discharge_plan"/>
+                                </group>
+                            </group>
+                            <field name="notes" placeholder="Detailed clinical summary or discharge instructions..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Hospital inpatient search view -->
+    <record id="hospital_inpatient_view_search" model="ir.ui.view">
+        <field name="name">hospital.inpatient.view.search</field>
+        <field name="model">hospital.inpatient</field>
+        <field name="arch" type="xml">
+            <search string="Search Inpatients">
+                <field name="name" string="Code"/>
+                <field name="patient_id" string="Patient"/>
+                <field name="attending_doctor_id" string="Doctor"/>
+                <field name="ward_id" string="Ward"/>
+                <field name="room_id" string="Room"/>
+                <separator/>
+                <filter string="Admitted" name="state_admitted"
+                        domain="[('state', '=', 'admit')]"/>
+                <filter string="Reserved" name="state_reserved"
+                        domain="[('state', '=', 'reserve')]"/>
+                <filter string="Discharged" name="state_discharged"
+                        domain="[('state', '=', 'dis')]"/>
+                <separator/>
+                <filter string="Emergency" name="type_emergency"
+                        domain="[('type_admission', '=', 'emergency')]"/>
+                <filter string="Routine" name="type_routine"
+                        domain="[('type_admission', '=', 'routine')]"/>
+                <separator/>
+                <filter string="Inactive" name="active"
+                        domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Doctor" name="group_doctor" context="{'group_by': 'attending_doctor_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Admission Type" name="group_type" context="{'group_by': 'type_admission'}"/>
+                    <filter string="Ward" name="group_ward" context="{'group_by': 'ward_id'}"/>
+                    <filter string="Room" name="group_room" context="{'group_by': 'room_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Inpatient menu action -->
+    <record id="hospital_inpatient_action" model="ir.actions.act_window">
+        <field name="name">Inpatient</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.inpatient</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="search_view_id" ref="hospital_inpatient_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Admit New Inpatient
+            </p>
+            <p>
+                Manage hospital admissions, bed allocations, nursing schedules, and inpatient care.
+            </p>
+        </field>
+    </record>
+
+    <!-- Inpatient menu -->
+    <menuitem id="hospital_inpatient_menu" name="Inpatient"
+              parent="appointment_menu_patient"
+              action="hospital_inpatient_action"
+              sequence="8"/>
+</odoo>

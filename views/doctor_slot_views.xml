@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Doctor slot calendar view -->
+    <record id="doctor_slot_view_calender" model="ir.ui.view">
+        <field name="name">doctor.slot.view.calendar</field>
+        <field name="model">doctor.slot</field>
+        <field eval="2" name="priority"/>
+        <field name="arch" type="xml">
+            <calendar date_start="date_start" string="Booking Slot"
+                      mode="week" quick_create="false">
+                <field name="doctor_id"/>
+                <field name="patient_id" avatar_field="avatar_128"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Doctor slot tree view -->
+    <record id="doctor_slot_view_tree" model="ir.ui.view">
+        <field name="name">doctor.slot.view.tree</field>
+        <field name="model">doctor.slot</field>
+        <field eval="2" name="priority"/>
+        <field name="arch" type="xml">
+            <tree string="Doctor Slots" decoration-warning="state == 'draft'"
+                  decoration-info="state == 'confirmed'"
+                  decoration-success="state == 'done'"
+                  decoration-danger="state == 'cancel'">
+                <field name="name" string="Surgery" decoration-bf="1"/>
+                <field name="doctor_id"/>
+                <field name="patient_id"/>
+                <field name="date_start"/>
+                <field name="hours_to_take" widget="float_time" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state == 'draft'"
+                       decoration-info="state == 'confirmed'"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'cancel'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Doctor slot form view -->
+    <record id="doctor_slot_view_form" model="ir.ui.view">
+        <field name="name">doctor.slot.view.form</field>
+        <field name="model">doctor.slot</field>
+        <field eval="2" name="priority"/>
+        <field name="arch" type="xml">
+            <form string="Doctor Slot">
+                <header>
+                    <button name="action_confirm" type="object"
+                            string="Confirm" class="btn-primary"
+                            invisible="state in ['confirmed', 'done']"/>
+                    <button name="action_done" type="object"
+                            string="Done" class="btn-primary"
+                            invisible="state != 'confirmed'"/>
+                    <button name="action_cancel" type="object"
+                            string="Cancel" class="btn-secondary"
+                            invisible="state in ['cancel', 'done']"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <span class="o_form_label text-muted">Surgery / Slot</span>
+                        <h1>
+                            <field name="name" placeholder="e.g. Appendectomy Slot" required="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Doctor &amp; Patient">
+                            <field name="doctor_id" options="{'no_create': True, 'no_edit': True}"/>
+                            <field name="patient_id" options="{'no_create': True, 'no_edit': True}"/>
+                            <field name="hours_to_take" widget="float_time"/>
+                        </group>
+                        <group string="Timing">
+                            <field name="date_start"/>
+                            <field name="time" widget="float_time" optional="show"/>
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Doctor slot menu action -->
+    <record id="doctor_slot_action" model="ir.actions.act_window">
+        <field name="name">Slots</field>
+        <field name="res_model">doctor.slot</field>
+        <field name="view_mode">calendar,tree,form</field>
+    </record>
+
+    <!-- Doctor slot menu -->
+    <menuitem id="doctor_slot_menu"
+              name="Doctor Slot"
+              parent="hospital_menu_appointment"
+              action="doctor_slot_action"
+              sequence="3">
+    </menuitem>
+</odoo>

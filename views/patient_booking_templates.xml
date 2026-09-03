@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Patient booking template -->
+    <template id="patient_booking_form">
+        <t t-call="website.layout">
+            <div id="booking_form" class="oe_structure oe_empty py-5 bg-light">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-lg-8">
+                            <!-- Booking Card -->
+                            <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                                <div class="card-header bg-primary text-white py-4 px-4">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px; font-size: 1.3rem;">
+                                            <i class="fa fa-calendar-check-o"/>
+                                        </div>
+                                        <div>
+                                            <h3 class="mb-0 text-white fw-bold">Book Outpatient Consultation</h3>
+                                            <p class="mb-0 text-white-50 small">Schedule your appointment with our specialized clinical doctors</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body p-4 p-md-5 bg-white">
+                                    <form action="/patient_booking/success" method="post" enctype="multipart/form-data">
+                                        <!-- Patient Name -->
+                                        <div class="mb-4">
+                                            <label for="patient_name" class="form-label fw-semibold text-muted small text-uppercase">
+                                                Patient Name
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="fa fa-user text-muted"/>
+                                                </span>
+                                                <input type="text" id="patient_name"
+                                                       t-att-value="user"
+                                                       class="form-control border-start-0 bg-light"
+                                                       readonly="1"/>
+                                            </div>
+                                        </div>
+
+                                        <!-- Appointment Details: Date, Department, Doctor -->
+                                        <div class="row g-3 mb-4">
+                                            <div class="col-12 col-md-4">
+                                                <label for="booking_date" class="form-label fw-semibold text-muted small text-uppercase">
+                                                    Consultation Date *
+                                                </label>
+                                                <input class="form-control" type="date"
+                                                       id="booking_date" name="date"
+                                                       t-att-value="date"
+                                                       required="True"/>
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <label for="doctor-department" class="form-label fw-semibold text-muted small text-uppercase">
+                                                    Department
+                                                </label>
+                                                <select name="doctor-department" id="doctor-department" class="form-select">
+                                                    <option value="">All Departments</option>
+                                                    <t t-foreach="departments or []" t-as="dep">
+                                                        <option t-att-value="dep[0]">
+                                                            <t t-esc="dep[1]"/>
+                                                        </option>
+                                                    </t>
+                                                </select>
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <label for="doctor-name" class="form-label fw-semibold text-muted small text-uppercase">
+                                                    Doctor *
+                                                </label>
+                                                <select name="doctor-name" id="doctor-name" required="True" class="form-select">
+                                                    <option value="">Select Doctor...</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Reason For Visit -->
+                                        <div class="mb-4">
+                                            <label for="reason" class="form-label fw-semibold text-muted small text-uppercase">
+                                                Reason for Consultation / Symptoms
+                                            </label>
+                                            <textarea class="form-control" name="reason" id="reason" rows="4"
+                                                      placeholder="Briefly describe your symptoms or visit reason..."/>
+                                        </div>
+
+                                        <!-- Submit Button -->
+                                        <div class="d-flex align-items-center justify-content-between pt-3 border-top flex-wrap gap-2">
+                                            <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold">
+                                                <i class="fa fa-check me-2"/> Confirm Appointment
+                                            </button>
+                                            <t t-if="card">
+                                                <a t-attf-href="/web/content/{{attachment_id}}?download=true" class="btn btn-outline-secondary">
+                                                    <i class="fa fa-id-card-o me-1"/> Download Patient Card
+                                                </a>
+                                            </t>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Hospital outpatient tree view -->
+    <record id="hospital_outpatient_view_tree" model="ir.ui.view">
+        <field name="name">hospital.outpatient.view.tree</field>
+        <field name="model">hospital.outpatient</field>
+        <field name="arch" type="xml">
+            <tree string="Outpatient Consultations" decoration-info="state == 'op'"
+                  decoration-warning="state == 'draft'"
+                  decoration-primary="state == 'inpatient'"
+                  decoration-success="state == 'invoice'"
+                  decoration-danger="state == 'cancel'">
+                <field name="op_reference" string="OP Reference" decoration-bf="1"/>
+                <field name="slot" widget="float_time" optional="show"/>
+                <field name="patient_id"/>
+                <field name="doctor_id"/>
+                <field name="op_date"/>
+                <field name="reason" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state == 'draft'"
+                       decoration-info="state == 'op'"
+                       decoration-primary="state == 'inpatient'"
+                       decoration-success="state == 'invoice'"
+                       decoration-danger="state == 'cancel'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Hospital outpatient kanban view -->
+    <record id="hospital_outpatient_view_kanban" model="ir.ui.view">
+        <field name="name">hospital.outpatient.view.kanban</field>
+        <field name="model">hospital.outpatient</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" quick_add="false" sample="1">
+                <field name="id"/>
+                <field name="op_reference"/>
+                <field name="patient_id"/>
+                <field name="doctor_id"/>
+                <field name="op_date"/>
+                <field name="slot"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click p-3 rounded shadow-sm border">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong class="text-primary fs-6"><field name="op_reference"/></strong>
+                                <span t-if="record.slot.value" class="badge rounded-pill bg-light text-dark border">
+                                    <i class="fa fa-clock-o me-1" title="Time Slot"/> <field name="slot" widget="float_time"/>
+                                </span>
+                            </div>
+                            <div class="mb-2">
+                                <div class="fw-bold fs-6"><field name="patient_id"/></div>
+                                <div class="text-muted small">
+                                    <i class="fa fa-user-md me-1 text-secondary" title="Doctor"/> <field name="doctor_id"/>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top small text-muted">
+                                <span><i class="fa fa-calendar me-1" title="Date"/> <field name="op_date"/></span>
+                                <field name="state" widget="badge"
+                                       decoration-warning="state == 'draft'"
+                                       decoration-info="state == 'op'"
+                                       decoration-primary="state == 'inpatient'"
+                                       decoration-success="state == 'invoice'"
+                                       decoration-danger="state == 'cancel'"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Hospital outpatient form view -->
+    <record id="hospital_outpatient_view_form" model="ir.ui.view">
+        <field name="name">hospital.outpatient.view.form</field>
+        <field name="model">hospital.outpatient</field>
+        <field name="arch" type="xml">
+            <form string="Outpatient Consultation">
+                <header>
+                    <button name="action_confirm" string="Confirm OP"
+                            type="object" class="btn-primary" invisible="state != 'draft'"
+                            groups="hospital_managment_os.hospital_managment_group_manager,
+                            hospital_managment_os.hospital_managment_group_doctor,
+                            hospital_managment_os.hospital_managment_group_receptionist,
+                            hospital_managment_os.hospital_managment_group_nurse"/>
+                    <button name="create_invoice"
+                            string="Create Invoice" class="btn-primary"
+                            invisible="state not in ('op','rft')" type="object"
+                            groups="hospital_managment_os.hospital_managment_group_manager,
+                            hospital_managment_os.hospital_managment_group_lab_assistant,
+                            hospital_managment_os.hospital_managment_group_receptionist"/>
+                    <button name="action_create_lab_test"
+                            string="Order Lab Test" class="btn-secondary"
+                            invisible="state != 'op'" type="object"
+                            groups="hospital_managment_os.hospital_managment_group_manager,
+                            hospital_managment_os.hospital_managment_group_receptionist,
+                            hospital_managment_os.hospital_managment_group_lab_assistant,
+                            hospital_managment_os.hospital_managment_group_nurse"/>
+                    <button name="action_convert_to_inpatient"
+                            string="Admit as Inpatient"
+                            class="btn-secondary" invisible="state != 'op'" type="object"
+                            groups="hospital_managment_os.hospital_managment_group_manager,
+                            hospital_managment_os.hospital_managment_group_doctor,
+                            hospital_managment_os.hospital_managment_group_receptionist,
+                            hospital_managment_os.hospital_managment_group_nurse"/>
+                    <button name="action_print_prescription" string="Print Prescription"
+                            type="object" class="btn-secondary"
+                            invisible="state not in ('op','inpatient','invoice')"
+                            groups="hospital_managment_os.hospital_managment_group_manager,
+                            hospital_managment_os.hospital_managment_group_doctor,
+                            hospital_managment_os.hospital_managment_group_receptionist,
+                            hospital_managment_os.hospital_managment_group_nurse"/>
+                    <button name="action_op_cancel" string="Cancel"
+                            invisible="state != 'op'" type="object" class="btn-secondary"
+                            groups="hospital_managment_os.hospital_managment_group_manager,
+                            hospital_managment_os.hospital_managment_group_receptionist,
+                            hospital_managment_os.hospital_managment_group_doctor,
+                            hospital_managment_os.hospital_managment_group_nurse"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,op,invoice"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button invisible="test_count == 0"
+                                name="action_view_test" type="object"
+                                class="oe_stat_button"
+                                icon="fa-flask">
+                            <field name="test_count" widget="statinfo" string="Lab Tests"/>
+                        </button>
+                        <button name="action_view_invoice" type="object"
+                                class="oe_stat_button"
+                                invisible="invoiced == False"
+                                icon="fa-pencil-square-o"
+                                string="Invoice"/>
+                    </div>
+                    <div class="oe_title">
+                        <span class="o_form_label text-muted">Outpatient Consultation</span>
+                        <h1 class="d-flex align-items-center">
+                            <field name="op_reference" readonly="1" class="text-primary"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Patient &amp; Scheduling">
+                            <field name="patient_id" widget="selection"
+                                   readonly="state in ('invoice','cancel')"/>
+                            <field name="op_date"
+                                   readonly="state in ('invoice','cancel')"/>
+                            <field name="invoiced" invisible="1"/>
+                        </group>
+                        <group string="Doctor &amp; Time Slot">
+                            <field name="doctor_id"
+                                   options="{'no_create': True, 'no_edit': True}"
+                                   readonly="state in ('invoice','cancel')"/>
+                            <field name="slot" invisible="state not in ('op','inpatient','invoice')"
+                                   readonly="state in ('invoice','cancel')" widget="float_time"/>
+                            <field name="test_count" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Clinical Notes">
+                        <field name="reason" placeholder="Enter patient complaints, symptoms, or visit reason..."/>
+                    </group>
+                    <notebook invisible="state not in ('op','inpatient','invoice')">
+                        <page name="Prescription" string="Prescription">
+                            <field name="prescription_ids"
+                                   readonly="state in ('invoice','cancel')">
+                                <tree editable="bottom">
+                                    <field name="medicine_id" string="Medicine"/>
+                                    <field name="no_intakes" string="Dosage Frequency"/>
+                                    <field name="time" string="Time"/>
+                                    <field name="note" string="Instructions / Meal Timing"/>
+                                    <field name="quantity" string="Quantity"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Hospital outpatient search view -->
+    <record id="hospital_outpatient_view_search" model="ir.ui.view">
+        <field name="name">hospital.outpatient.view.search</field>
+        <field name="model">hospital.outpatient</field>
+        <field name="arch" type="xml">
+            <search string="Search Consultations">
+                <field name="op_reference" string="Reference"/>
+                <field name="patient_id" string="Patient"/>
+                <field name="doctor_id" string="Doctor"/>
+                <separator/>
+                <filter string="Today's OP" name="today_op"
+                        domain="[('op_date', '=', context_today())]"/>
+                <filter string="Draft" name="state_draft"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter string="Active OP" name="state_op"
+                        domain="[('state', '=', 'op')]"/>
+                <filter string="Invoiced" name="state_invoice"
+                        domain="[('state', '=', 'invoice')]"/>
+                <separator/>
+                <filter string="Inactive" name="inactive"
+                        domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Doctor" name="group_doctor" context="{'group_by': 'doctor_id'}"/>
+                    <filter string="Patient" name="group_patient" context="{'group_by': 'patient_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'op_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Out patients menu action -->
+    <record id="hospital_outpatient_action" model="ir.actions.act_window">
+        <field name="name">Out Patients</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hospital.outpatient</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="search_view_id" ref="hospital_outpatient_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create First Outpatient Consultation
+            </p>
+            <p>
+                Manage appointments, prescriptions, and billing for clinical outpatient consultations.
+            </p>
+        </field>
+    </record>
+
+    <!-- Outpatient menu -->
+    <menuitem id="hospital_outpatient_menu" name="Outpatient"
+              parent="appointment_menu_patient"
+              action="hospital_outpatient_action"
+              sequence="2"/>
+</odoo>

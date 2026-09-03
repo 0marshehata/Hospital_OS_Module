@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Configure standard Egyptian Pound (EGP) with symbol 'EGP' and position 'after' (e.g. 10 EGP) -->
+        <record id="base.EGP" model="res.currency">
+            <field name="symbol">EGP</field>
+            <field name="position">after</field>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

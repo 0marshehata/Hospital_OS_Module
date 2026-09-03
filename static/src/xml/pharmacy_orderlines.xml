@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<template>
+    <t t-name="PharmacyOrderLines">
+        <tr class="hms-order-line-row">
+            <td>
+                <Dropdown togglerClass="'btn btn-outline-secondary dropdown-toggle w-100 text-start d-flex justify-content-between align-items-center'">
+                    <t t-set-slot="toggler">
+                        <span>
+                            <i class="fa fa-medkit me-2 text-primary" title="Medication"/>
+                            <t t-esc="selectedMedicineName"/>
+                        </span>
+                    </t>
+                    <div class="dropdown-menu shadow-sm" style="max-height: 250px; overflow-y: auto;">
+                        <t t-foreach="props.medicines" t-as="med" t-key="med.id">
+                            <DropdownItem class="'dropdown-item py-2'"
+                                          onSelected="() => this.onProductSelect(med.id)">
+                                <span class="fw-semibold"><t t-esc="med.name"/></span>
+                                <span class="text-muted ms-2">(<t t-esc="med.lst_price || med.list_price || 0"/> <t t-esc="props.currencySymbol"/>)</span>
+                            </DropdownItem>
+                        </t>
+                    </div>
+                </Dropdown>
+            </td>
+            <td style="max-width: 100px;">
+                <input type="number" min="1" class="form-control text-center"
+                       t-att-value="lineState.qty"
+                       t-on-change="onQtyChange"/>
+            </td>
+            <td style="max-width: 140px;">
+                <select class="form-control" t-on-change="onUomChange">
+                    <t t-foreach="props.units" t-as="unit" t-key="unit.id">
+                        <option t-att-value="unit.id" t-att-selected="unit.id === lineState.uom">
+                            <t t-esc="unit.name"/>
+                        </option>
+                    </t>
+                </select>
+            </td>
+            <td class="text-end fw-semibold text-muted">
+                <t t-esc="lineState.price.toFixed(2)"/> <t t-esc="props.currencySymbol"/>
+            </td>
+            <td class="text-end fw-bold text-primary">
+                <t t-esc="lineState.sub_total.toFixed(2)"/> <t t-esc="props.currencySymbol"/>
+            </td>
+            <td class="text-center">
+                <button type="button" class="hms-delete-row-btn" t-on-click="removeLine" title="Remove Item">
+                    <i class="fa fa-trash" title="Delete Line"/>
+                </button>
+            </td>
+        </tr>
+    </t>
+</template>

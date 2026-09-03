@@ -1,0 +1,55 @@
+/* Pharmacy Dashboard Custom Styling */
+.hms-pharmacy-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.hms-order-table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--hms-radius-md, 10px);
+  border: 1px solid var(--hms-border, #e2e8f0);
+  max-width: 100%;
+  min-width: 0;
+}
+
+.hms-order-lines-table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+
+.hms-order-lines-table th {
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--hms-text-muted, #64748b);
+  border-bottom: 1px solid var(--hms-border, #e2e8f0);
+}
+
+.hms-order-lines-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.hms-delete-row-btn {
+  background: transparent;
+  color: var(--hms-danger, #ef4444);
+  border: 1px solid var(--hms-danger-border, #fecaca);
+  border-radius: var(--hms-radius-sm, 6px);
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.hms-delete-row-btn:hover {
+  background: var(--hms-danger, #ef4444);
+  color: #ffffff;
+}

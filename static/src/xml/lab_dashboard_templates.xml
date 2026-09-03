@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<templates id="lab_dashboard" xml:space="preserve">
+    <t t-name="LabDashboard" owl="1">
+        <div class="hms-dashboard-wrapper" t-ref="root">
+            <!-- Header Banner -->
+            <div class="hms-header-banner hms-animate-fade-in">
+                <div>
+                    <h2>
+                        <span class="hms-pulse-dot" title="Live System"/>
+                        Clinical Laboratory &amp; Pathology Operations
+                    </h2>
+                    <p>Verify diagnostic requests, oversee specimen testing in-flight, and review published lab findings.</p>
+                </div>
+                <div>
+                    <button class="hms-btn hms-btn-secondary" t-on-click="() => this.loadInitialData()">
+                        <i class="fa fa-refresh me-1" title="Refresh Data"/> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Skeleton Loading State -->
+            <t t-if="state.loading">
+                <div class="hms-kpi-grid mb-4">
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                </div>
+                <div class="hms-card p-4">
+                    <div class="hms-skeleton hms-skeleton-line short"/>
+                    <div class="hms-skeleton hms-skeleton-line full"/>
+                </div>
+            </t>
+
+            <!-- Loaded Content -->
+            <t t-else="">
+                <!-- KPI Metric Grid -->
+                <div class="hms-kpi-grid">
+                    <div class="hms-kpi-card kpi-warning hms-animate-fade-in hms-delay-1" t-on-click="() => this.setTab('confirm')">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-clock-o" title="Awaiting Confirmation"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.awaitingConfirm"/></span>
+                            <span class="hms-kpi-label">Awaiting Confirmation</span>
+                        </div>
+                    </div>
+                    <div class="hms-kpi-card kpi-info hms-animate-fade-in hms-delay-2" t-on-click="() => this.setTab('test')">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-flask" title="Tests In Progress"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.inProgress"/></span>
+                            <span class="hms-kpi-label">In Progress</span>
+                        </div>
+                    </div>
+                    <div class="hms-kpi-card kpi-success hms-animate-fade-in hms-delay-3" t-on-click="() => this.setTab('result')">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-check-circle" title="Completed Tests"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.completed"/></span>
+                            <span class="hms-kpi-label">Completed Tests</span>
+                        </div>
+                    </div>
+                    <div class="hms-kpi-card kpi-secondary hms-animate-fade-in hms-delay-4" t-on-click="() => this.setTab('result')">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-file-text-o" title="Published Reports"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.publishedReports"/></span>
+                            <span class="hms-kpi-label">Published Reports</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Laboratory Workload Status Bar -->
+                <div class="hms-workload-bar-wrapper hms-animate-fade-in">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold small text-uppercase text-muted">Laboratory Queue Completion Status</span>
+                        <span class="fw-bold text-primary"><t t-esc="labCompletionRate"/>%</span>
+                    </div>
+                    <div class="hms-progress-stacked">
+                        <div class="hms-progress-segment seg-success" t-attf-style="width: {{labCompletionRate}}%;" title="Completed"/>
+                        <div class="hms-progress-segment seg-warning" t-attf-style="width: {{100 - labCompletionRate}}%;" title="Pending / In-Progress"/>
+                    </div>
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span><i class="fa fa-circle text-success me-1" title="Done"/> Completed: <t t-esc="state.kpi.completed"/></span>
+                        <span><i class="fa fa-circle text-warning me-1" title="In Flight"/> In Flight: <t t-esc="state.kpi.awaitingConfirm + state.kpi.inProgress"/></span>
+                    </div>
+                </div>
+
+                <!-- Laboratory Navigation Tabs -->
+                <div class="hms-tabs-nav hms-animate-fade-in">
+                    <button t-attf-class="hms-tab-btn #{state.activeTab === 'confirm' ? 'active' : ''}"
+                            t-on-click="() => this.setTab('confirm')">
+                        <i class="fa fa-inbox" title="Confirm Queue"/> Tests To Confirm (<t t-esc="state.confirm_tests.length"/>)
+                    </button>
+                    <button t-attf-class="hms-tab-btn #{state.activeTab === 'test' ? 'active' : ''}"
+                            t-on-click="() => this.setTab('test')">
+                        <i class="fa fa-cogs" title="Processing Queue"/> In-Progress Processing (<t t-esc="state.testing_tests.length"/>)
+                    </button>
+                    <button t-attf-class="hms-tab-btn #{state.activeTab === 'result' ? 'active' : ''}"
+                            t-on-click="() => this.setTab('result')">
+                        <i class="fa fa-check-square-o" title="Published Reports"/> Published Reports (<t t-esc="state.results.length"/>)
+                    </button>
+                </div>
+
+                <!-- Queue 1: Tests To Confirm -->
+                <div t-if="state.activeTab === 'confirm'" class="hms-animate-fade-in">
+                    <!-- Verification Drawer if a test is clicked -->
+                    <div t-if="state.selectedTest" class="hms-card border-primary mb-3">
+                        <div class="hms-card-header bg-primary-light">
+                            <h3 class="text-primary"><i class="fa fa-user-circle" title="Verification"/> Verify Diagnostic Request</h3>
+                            <button class="hms-btn hms-btn-secondary py-1 px-2" t-on-click="() => this.state.selectedTest = null">
+                                <i class="fa fa-times" title="Close"/> Close
+                            </button>
+                        </div>
+                        <div class="hms-card-body">
+                            <div class="row align-items-center g-3">
+                                <div class="col-auto">
+                                    <t t-if="state.selectedTest.patient_info and state.selectedTest.patient_info.image_1920">
+                                        <img t-attf-src="data:image/png;base64,{{state.selectedTest.patient_info.image_1920}}"
+                                             class="hms-patient-avatar" alt="Patient Avatar"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="hms-kpi-icon" style="width: 72px; height: 72px;">
+                                            <i class="fa fa-user fa-2x" title="Patient"/>
+                                        </div>
+                                    </t>
+                                </div>
+                                <div class="col">
+                                    <h4 class="mb-1"><t t-esc="state.selectedTest.patient_id ? state.selectedTest.patient_id[1] : '-'"/></h4>
+                                    <div class="small text-muted d-flex gap-3 flex-wrap">
+                                        <span t-if="state.selectedTest.patient_info and state.selectedTest.patient_info.phone">
+                                            <i class="fa fa-phone me-1" title="Phone"/> <t t-esc="state.selectedTest.patient_info.phone"/>
+                                        </span>
+                                        <span t-if="state.selectedTest.patient_info and state.selectedTest.patient_info.blood_group">
+                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle text-uppercase">
+                                                Blood: <t t-esc="state.selectedTest.patient_info.blood_group"/>
+                                            </span>
+                                        </span>
+                                        <span>
+                                            <i class="fa fa-flask me-1" title="Lab"/> Laboratory: <strong><t t-esc="state.selectedTest.lab_id ? state.selectedTest.lab_id[1] : '-'"/></strong>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <button class="hms-btn hms-btn-primary" t-on-click="() => this.confirmLabTest(state.selectedTest.id)">
+                                        <i class="fa fa-check me-1" title="Confirm Request"/> Confirm &amp; Begin Test
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hms-card">
+                        <div class="hms-card-header">
+                            <h3><i class="fa fa-list-alt text-primary" title="Queue"/> Requests Awaiting Verification</h3>
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="text" class="form-control form-control-sm" placeholder="Filter patient/lab..."
+                                       style="max-width: 170px;"
+                                       t-model="state.searchQuery"/>
+                            </div>
+                        </div>
+                        <div class="hms-card-body p-0">
+                            <div class="table-responsive">
+                                <table class="hms-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Patient</th>
+                                            <th>Laboratory</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-if="filteredConfirmTests.length === 0">
+                                            <tr>
+                                                <td colspan="5" class="p-0">
+                                                    <div class="hms-empty-state">
+                                                        <div class="hms-empty-icon">
+                                                            <i class="fa fa-check-circle text-success" title="All Confirmed"/>
+                                                        </div>
+                                                        <div class="hms-empty-title">All Lab Requests Confirmed</div>
+                                                        <div class="hms-empty-desc">No diagnostic requests currently waiting for lab verification.</div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                        <t t-foreach="filteredConfirmTests" t-as="test" t-key="test.id">
+                                            <tr>
+                                                <td class="fw-bold"><t t-esc="test.patient_id ? test.patient_id[1] : '-'"/></td>
+                                                <td><t t-esc="test.lab_id ? test.lab_id[1] : '-'"/></td>
+                                                <td><t t-esc="test.date"/></td>
+                                                <td><span class="hms-badge hms-badge-warning">Draft</span></td>
+                                                <td class="text-end">
+                                                    <button class="hms-btn hms-btn-secondary py-1 px-2 me-1"
+                                                            t-on-click="() => this.viewPatientDetails(test)" title="Inspect Patient">
+                                                        <i class="fa fa-eye" title="Inspect"/>
+                                                    </button>
+                                                    <button class="hms-btn hms-btn-primary py-1 px-2"
+                                                            t-on-click="() => this.confirmLabTest(test.id)" title="Confirm Test">
+                                                        <i class="fa fa-check" title="Confirm"/>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Queue 2: In-Progress Processing -->
+                <div t-if="state.activeTab === 'test'" class="hms-card hms-animate-fade-in">
+                    <div class="hms-card-header">
+                        <h3><i class="fa fa-flask text-info" title="In Progress"/> Laboratory Tests In Processing</h3>
+                    </div>
+                    <div class="hms-card-body p-0">
+                        <div class="table-responsive">
+                            <table class="hms-table">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Laboratory</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-if="state.testing_tests.length === 0">
+                                        <tr>
+                                            <td colspan="5" class="p-0">
+                                                <div class="hms-empty-state">
+                                                    <div class="hms-empty-icon">
+                                                        <i class="fa fa-flask" title="No active tests"/>
+                                                    </div>
+                                                    <div class="hms-empty-title">No Active Tests In Progress</div>
+                                                    <div class="hms-empty-desc">Confirmed diagnostic tests will appear here while laboratory analysis is underway.</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-foreach="state.testing_tests" t-as="test" t-key="test.id">
+                                        <tr>
+                                            <td class="fw-bold"><t t-esc="test.patient_id ? test.patient_id[1] : '-'"/></td>
+                                            <td><t t-esc="test.lab_id ? test.lab_id[1] : '-'"/></td>
+                                            <td><t t-esc="test.date"/></td>
+                                            <td><span class="hms-badge hms-badge-info">In Testing</span></td>
+                                            <td class="text-end">
+                                                <button class="hms-btn hms-btn-secondary py-1 px-2"
+                                                        t-on-click="() => this.openLabTest(test.id)" title="Open Test Record">
+                                                    <i class="fa fa-external-link" title="Open"/> Open Record
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Queue 3: Published Reports -->
+                <div t-if="state.activeTab === 'result'" class="hms-card hms-animate-fade-in">
+                    <div class="hms-card-header">
+                        <h3><i class="fa fa-file-text-o text-success" title="Published"/> Published Diagnostic Findings</h3>
+                    </div>
+                    <div class="hms-card-body p-0">
+                        <div class="table-responsive">
+                            <table class="hms-table">
+                                <thead>
+                                    <tr>
+                                        <th>Test Name</th>
+                                        <th>Unit</th>
+                                        <th>Standard Reference</th>
+                                        <th>Observed Result</th>
+                                        <th>Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-if="state.results.length === 0">
+                                        <tr>
+                                            <td colspan="5" class="p-0">
+                                                <div class="hms-empty-state">
+                                                    <div class="hms-empty-icon">
+                                                        <i class="fa fa-file-text-o" title="No results"/>
+                                                    </div>
+                                                    <div class="hms-empty-title">No Diagnostic Results Yet</div>
+                                                    <div class="hms-empty-desc">Completed pathology test results and reference findings will appear here.</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-foreach="state.results" t-as="res" t-key="res.id">
+                                        <tr>
+                                            <td class="fw-bold"><t t-esc="res.display_name"/></td>
+                                            <td><t t-esc="res.uom_id ? res.uom_id[1] : '-'"/></td>
+                                            <td><t t-esc="res.normal"/></td>
+                                            <td><span class="fw-bold text-primary"><t t-esc="res.result"/></span></td>
+                                            <td><t t-esc="res.cost"/> <t t-esc="state.currencySymbol"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

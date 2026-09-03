@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Patient lab test report action -->
+    <record id="action_report_patient_lab_tests" model="ir.actions.report">
+        <field name="name">Laboratory Diagnostic Report</field>
+        <field name="model">lab.test.line</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hospital_managment_os.report_patient_lab_tests</field>
+        <field name="report_file">hospital_managment_os.report_patient_lab_tests</field>
+        <field name="binding_model_id" ref="model_lab_test_line"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Patient lab test report template -->
+    <template id="report_patient_lab_tests">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1e293b; padding: 10px 0;">
+                    <!-- Laboratory Diagnostic Header -->
+                    <div style="border-bottom: 3px solid #0284c7; padding-bottom: 15px; margin-bottom: 25px;">
+                        <table style="width: 100%;">
+                            <tr>
+                                <td style="vertical-align: middle;">
+                                    <h2 style="color: #0284c7; margin: 0; font-weight: 700; font-size: 22px; text-transform: uppercase; letter-spacing: 0.05em;">
+                                        Diagnostic Pathology &amp; Laboratory Report
+                                    </h2>
+                                    <p style="margin: 3px 0 0 0; color: #64748b; font-size: 13px;">Certified Clinical Specimen Analysis &amp; Diagnostic Findings</p>
+                                </td>
+                                <td style="text-align: right; vertical-align: middle;">
+                                    <div style="font-size: 13px; color: #475569;">
+                                        <strong>Report Date: </strong>
+                                        <span t-esc="date"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Patient and Doctor Metadata Box -->
+                    <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
+                        <table style="width: 100%;">
+                            <tr>
+                                <td style="width: 50%; vertical-align: top;">
+                                    <div style="font-size: 11px; text-transform: uppercase; color: #0369a1; font-weight: bold; margin-bottom: 4px;">Patient Name</div>
+                                    <div style="font-size: 16px; font-weight: 700; color: #0f172a;">
+                                        <t t-if="patient_name">
+                                            <span t-esc="patient_name"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span t-esc="patient_id"/>
+                                        </t>
+                                    </div>
+                                </td>
+                                <td style="width: 50%; vertical-align: top;">
+                                    <div style="font-size: 11px; text-transform: uppercase; color: #0369a1; font-weight: bold; margin-bottom: 4px;">Ordering Physician</div>
+                                    <div style="font-size: 16px; font-weight: 700; color: #0284c7;">
+                                        Dr. <span t-esc="doctor_name"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Pathology Test Results Table -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px; font-size: 13px;">
+                        <thead>
+                            <tr style="background-color: #0284c7; color: #ffffff; text-align: left;">
+                                <th style="padding: 10px 12px; border: 1px solid #0284c7; width: 35%;">Investigation / Test</th>
+                                <th style="padding: 10px 12px; border: 1px solid #0284c7; text-align: center; width: 18%;">Observed Result</th>
+                                <th style="padding: 10px 12px; border: 1px solid #0284c7; text-align: center; width: 18%;">Reference Normal</th>
+                                <th style="padding: 10px 12px; border: 1px solid #0284c7; text-align: center; width: 14%;">Unit</th>
+                                <th style="padding: 10px 12px; border: 1px solid #0284c7; text-align: right; width: 15%;">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="datas" t-as="line" style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 10px 12px; font-weight: 600; color: #0f172a; border: 1px solid #e2e8f0;">
+                                    <t t-if="line.get('test')">
+                                        <span t-esc="line['test']"/>
+                                    </t>
+                                    <t t-else="">
+                                        <span t-esc="line.get('name', '')"/>
+                                    </t>
+                                </td>
+                                <td style="padding: 10px 12px; text-align: center; font-weight: 700; color: #0284c7; border: 1px solid #e2e8f0; font-size: 14px;">
+                                    <span t-esc="line['result']"/>
+                                </td>
+                                <td style="padding: 10px 12px; text-align: center; color: #475569; border: 1px solid #e2e8f0;">
+                                    <span t-esc="line['normal']"/>
+                                </td>
+                                <td style="padding: 10px 12px; text-align: center; color: #64748b; border: 1px solid #e2e8f0;">
+                                    <span t-esc="line['uom_id']"/>
+                                </td>
+                                <td style="padding: 10px 12px; text-align: right; font-weight: 600; color: #0f172a; border: 1px solid #e2e8f0;">
+                                    <span t-esc="line['cost']"/> <t t-esc="line.get('currency', 'EGP')"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Laboratory Verification & Signature Block -->
+                    <div style="margin-top: 40px; page-break-inside: avoid;">
+                        <table style="width: 100%;">
+                            <tr>
+                                <td style="width: 60%; vertical-align: bottom;">
+                                    <p style="font-size: 11px; color: #94a3b8; line-height: 1.5; margin: 0;">
+                                        * The results relate only to the items tested under laboratory standard protocols.<br/>
+                                        * Laboratory diagnostics must be correlated with clinical symptoms by the attending physician.<br/>
+                                        Hospital Management OS | Maintained by Omar Shehata
+                                    </p>
+                                </td>
+                                <td style="width: 40%; text-align: center; vertical-align: bottom;">
+                                    <div style="border-bottom: 1px solid #64748b; width: 220px; margin: 0 auto 8px auto; height: 50px;"/>
+                                    <div style="font-size: 13px; font-weight: 700; color: #0f172a;">Laboratory Director / Pathologist</div>
+                                    <div style="font-size: 11px; color: #64748b;">Clinical Pathology Sign-off</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

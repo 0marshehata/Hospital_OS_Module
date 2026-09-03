@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Booking success template -->
+    <template id="form_submit" name="Form Successfully Submitted">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty py-5 bg-light">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-8 col-lg-6 text-center">
+                            <div class="card shadow-sm border-0 rounded-3 p-5 bg-white">
+                                <div class="mb-4">
+                                    <div class="rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center"
+                                         style="width: 80px; height: 80px; font-size: 2.5rem;">
+                                        <i class="fa fa-check"/>
+                                    </div>
+                                </div>
+                                <h2 class="fw-bold text-dark mb-2">Booking Confirmed!</h2>
+                                <p class="text-muted mb-4">
+                                    Your outpatient consultation has been successfully scheduled. Our medical team looks forward to attending to you.
+                                </p>
+                                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                    <a href="/my/op" class="btn btn-primary px-4 py-2">
+                                        <i class="fa fa-list-alt me-1"/> View My Appointments
+                                    </a>
+                                    <a href="/" class="btn btn-outline-secondary px-4 py-2">
+                                        <i class="fa fa-home me-1"/> Back to Home
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

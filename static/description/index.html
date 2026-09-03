@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management OS</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --hms-primary: #0d9488;
+            --hms-primary-dark: #0f766e;
+            --hms-primary-light: #ccfbf1;
+            --hms-slate-900: #0f172a;
+            --hms-slate-800: #1e293b;
+            --hms-slate-600: #475569;
+            --hms-slate-100: #f1f5f9;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--hms-slate-800);
+            background-color: #f8fafc;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #042f2e 0%, #0f766e 60%, #0d9488 100%);
+            color: #ffffff;
+            padding: 80px 20px 70px 20px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 6px 16px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #ccfbf1;
+        }
+        .feature-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 32px 24px;
+            height: 100%;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(13, 148, 136, 0.12);
+            border-color: #99f6e4;
+        }
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .footer-banner {
+            background: #0f172a;
+            color: #94a3b8;
+            padding: 40px 20px;
+            border-radius: 24px;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid px-0">
+    <!-- Hero Banner -->
+    <header class="hero-section">
+        <div class="container">
+            <div class="hero-badge">
+                <i class="fa fa-heartbeat me-2"></i> Odoo 17 Enterprise Healthcare Platform
+            </div>
+            <h1 class="display-4 fw-bold mb-3">Hospital Management OS</h1>
+            <p class="lead mb-4 mx-auto" style="max-width: 780px; opacity: 0.92;">
+                A modern, production-grade clinical operations system covering Outpatient Consultations, Inpatient Admissions, Physician Practice Workflows, Pathology Laboratory Diagnostics, and Pharmacy Dispensary.
+            </p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <span class="badge bg-white text-dark px-3 py-2 fs-6 rounded-pill shadow-sm">
+                    <i class="fa fa-user-md text-teal me-1"></i> Physician Dashboard
+                </span>
+                <span class="badge bg-white text-dark px-3 py-2 fs-6 rounded-pill shadow-sm">
+                    <i class="fa fa-hospital text-teal me-1"></i> Inpatient & Ward Care
+                </span>
+                <span class="badge bg-white text-dark px-3 py-2 fs-6 rounded-pill shadow-sm">
+                    <i class="fa fa-flask text-teal me-1"></i> Pathology Diagnostics
+                </span>
+                <span class="badge bg-white text-dark px-3 py-2 fs-6 rounded-pill shadow-sm">
+                    <i class="fa fa-prescription-bottle-alt text-teal me-1"></i> Pharmacy POS
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Core Features Grid -->
+    <main class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-slate-900 mb-2">Integrated Healthcare Architecture</h2>
+            <p class="text-muted">Designed for multi-specialty hospitals, outpatient clinics, and diagnostic medical centers.</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Outpatient Consultation -->
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon bg-teal-subtle text-success" style="background-color: #ccfbf1; color: #0f766e;">
+                        <i class="fa fa-stethoscope"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Outpatient Appointments</h4>
+                    <p class="text-muted small">
+                        Automated patient token generation, physician scheduling, real-time consultation queues, and clinical history tracking with direct admission triggers.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Inpatient & Ward Management -->
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background-color: #e0f2fe; color: #0369a1;">
+                        <i class="fa fa-bed"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Inpatient & Bed Allocation</h4>
+                    <p class="text-muted small">
+                        Comprehensive bed occupancy management, building and ward capacity tracking, nursing plan monitoring, surgical logs, and patient discharge billing.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Diagnostic Pathology -->
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background-color: #f3e8ff; color: #7e22ce;">
+                        <i class="fa fa-microscope"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Pathology & Diagnostics</h4>
+                    <p class="text-muted small">
+                        Laboratory test order pipelines, sample verification, reference intervals, observed result tracking, document attachments, and executive diagnostic PDF reports.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Pharmacy Dispensary -->
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background-color: #ecfdf5; color: #047857;">
+                        <i class="fa fa-pills"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Pharmacy POS & Formularies</h4>
+                    <p class="text-muted small">
+                        Prescription fulfillment POS interface, medication stock alerts, vaccine inventory tracking, automated customer billing, and stock depletion reconciliation.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modern Dashboards -->
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background-color: #fef3c7; color: #b45309;">
+                        <i class="fa fa-chart-line"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">OWL Reactive Dashboards</h4>
+                    <p class="text-muted small">
+                        Role-based workspaces for Doctors, Receptionists, Laboratory Assistants, and Pharmacists featuring live workload completion ratios, skeleton loaders, and search filters.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Standards & Security -->
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background-color: #ffe4e6; color: #e11d48;">
+                        <i class="fa fa-shield-alt"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Enterprise Security & Reports</h4>
+                    <p class="text-muted small">
+                        Fine-grained role-based access control (RBAC), multi-company data isolation, ISO-standard patient ID card generation, and clinical prescription printing.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Ownership & Certification -->
+        <footer class="footer-banner text-center">
+            <div class="container">
+                <h4 class="text-white fw-bold mb-2">Hospital Management OS</h4>
+                <p class="small text-light opacity-75 mb-3">
+                    Engineered and maintained for production environments by <strong>Omar Shehata</strong>.
+                </p>
+                <div class="d-flex justify-content-center gap-3 text-muted small flex-wrap">
+                    <span><i class="fa fa-check-circle text-success me-1"></i> Odoo 17 Certified</span>
+                    <span><i class="fa fa-check-circle text-success me-1"></i> Pure OWL 2.0 Components</span>
+                    <span><i class="fa fa-check-circle text-success me-1"></i> AGPL-3 Open Source</span>
+                </div>
+            </div>
+        </footer>
+    </main>
+</div>
+
+</body>
+</html>

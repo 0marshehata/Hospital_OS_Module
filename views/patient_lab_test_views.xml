@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--Patient Lab Test form view-->
+    <record id="patient_lab_test_view_form" model="ir.ui.view">
+        <field name="name">patient.lab.test.view.form</field>
+        <field name="model">patient.lab.test</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar"/>
+                    <button name="action_start_test"
+                            string="Start Test"
+                            class="oe_highlight"
+                            invisible="state !='draft'"
+                            groups="hospital_managment_os.hospital_managment_group_lab_assistant"
+                            type="object"/>
+                    <button name="action_test_end"
+                            string="End Test"
+                            class="oe_highlight"
+                            invisible="state != 'test'"
+                            groups="hospital_managment_os.hospital_managment_group_lab_assistant"
+                            type="object"/>
+                    <button name="action_create_invoice"
+                            string="Create Invoice"
+                            class="oe_highlight"
+                            groups="hospital_managment_os.hospital_managment_group_lab_assistant"
+                            invisible="state != 'completed' or invoiced == True"
+                            type="object"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_invoice" type="object"
+                                class="oe_stat_button" icon="fa-edit"
+                                invisible="invoice_count == 0">
+                            <field string="Invoice" name="invoice_count"
+                                   widget="statinfo"/>
+                        </button>
+                        <button name="action_view_sale_order" type="object"
+                                class="oe_stat_button" icon="fa-usd"
+                                invisible="sale_count == 0">
+                            <field string="Sale Order" name="sale_count"
+                                   widget="statinfo"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="test_id"/>
+                            <field name="patient_id" widget="selection"/>
+                            <field name="patient_type"/>
+                            <field name="invoiced" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <field name="lab_id"
+                                   options="{'no_create': True, 'no_edit': True}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Test Details">
+                            <field name="test_ids"/>
+                        </page>
+                        <page string="Medicines">
+                            <field name="medicine_ids">
+                                <tree editable="bottom">
+                                    <field name="medicine_id"/>
+                                    <field name="qty_available"/>
+                                    <field name="quantity"/>
+                                    <field name="sub_total"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="Result"
+                              invisible="state == 'draft'">
+                            <field name="result_ids">
+                                <tree editable="bottom">
+                                    <field name="test_id"/>
+                                    <field name="normal"/>
+                                    <field name="result"/>
+                                    <field name="uom_id"/>
+                                    <field name="attachment"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <!-- Patient Lab Test tree view -->
+    <record id="patient_lab_test_view_tree" model="ir.ui.view">
+        <field name="name">patient.lab.test.view.tree</field>
+        <field name="model">patient.lab.test</field>
+        <field name="arch" type="xml">
+            <tree string="Patient Lab Tests" decoration-warning="state == 'draft'"
+                  decoration-info="state == 'test'"
+                  decoration-success="state == 'completed'">
+                <field name="test_id" string="Test Order" decoration-bf="1"/>
+                <field name="patient_id"/>
+                <field name="patient_type" widget="badge" optional="show"/>
+                <field name="date"/>
+                <field name="lab_id" optional="show"/>
+                <field name="total_price" widget="monetary" optional="show"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state == 'draft'"
+                       decoration-info="state == 'test'"
+                       decoration-success="state == 'completed'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Patient Lab Test kanban view -->
+    <record id="patient_lab_test_view_kanban" model="ir.ui.view">
+        <field name="name">patient.lab.test.view.kanban</field>
+        <field name="model">patient.lab.test</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" quick_add="false" sample="1">
+                <field name="id"/>
+                <field name="test_id"/>
+                <field name="patient_id"/>
+                <field name="patient_type"/>
+                <field name="date"/>
+                <field name="lab_id"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click p-3 rounded shadow-sm border">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong class="text-primary fs-6"><field name="test_id"/></strong>
+                                <span t-if="record.patient_type.value" class="badge rounded-pill bg-light text-dark border">
+                                    <field name="patient_type"/>
+                                </span>
+                            </div>
+                            <div class="mb-2">
+                                <div class="fw-bold"><field name="patient_id"/></div>
+                                <div t-if="record.lab_id.value" class="text-muted small">
+                                    <i class="fa fa-flask me-1 text-secondary" title="Laboratory"/> <field name="lab_id"/>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top small text-muted">
+                                <span><i class="fa fa-calendar me-1" title="Date"/> <field name="date"/></span>
+                                <field name="state" widget="badge"
+                                       decoration-warning="state == 'draft'"
+                                       decoration-info="state == 'test'"
+                                       decoration-success="state == 'completed'"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Patient Lab Test action -->
+    <record id="patient_lab_test_action" model="ir.actions.act_window">
+        <field name="name">Patient Lab Test</field>
+        <field name="res_model">patient.lab.test</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create Laboratory Tests
+            </p>
+        </field>
+    </record>
+    <!--    Patient Lab Test menu-->
+    <menuitem id="patient_lab_test_menu" name="All Tests"
+              parent="hospital_menu_laboratory" sequence="1"
+              action="patient_lab_test_action"/>
+</odoo>

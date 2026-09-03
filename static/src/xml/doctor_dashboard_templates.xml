@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<templates id="doc_dashboard" xml:space="preserve">
+    <t t-name="DoctorDashboard" owl="1">
+        <div class="hms-dashboard-wrapper" t-ref="root">
+            <!-- Header Banner -->
+            <div class="hms-header-banner hms-animate-fade-in">
+                <div>
+                    <h2>
+                        <span class="hms-pulse-dot" title="Live Clinical System"/>
+                        Clinical Practice &amp; Physician Dashboard
+                    </h2>
+                    <p>Real-time outpatient consultation flow, surgical schedule, and inpatient care status.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="hms-btn hms-btn-secondary" t-on-click="() => this.loadDashboardData()">
+                        <i class="fa fa-refresh me-1" title="Refresh Data"/> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Skeleton Loading State -->
+            <t t-if="state.loading">
+                <div class="hms-kpi-grid mb-4">
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                    <div class="hms-skeleton-card hms-skeleton"/>
+                </div>
+                <div class="hms-card p-4 mb-4">
+                    <div class="hms-skeleton hms-skeleton-line short"/>
+                    <div class="hms-skeleton hms-skeleton-line full"/>
+                    <div class="hms-skeleton hms-skeleton-line medium"/>
+                </div>
+            </t>
+
+            <!-- Loaded Content -->
+            <t t-else="">
+                <!-- KPI Metric Grid -->
+                <div class="hms-kpi-grid">
+                    <div class="hms-kpi-card hms-animate-fade-in hms-delay-1" t-on-click="fetch_consultation">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-calendar-check-o" title="Today's Appointments"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.todayAppointments"/></span>
+                            <span class="hms-kpi-label">Today's Appointments</span>
+                        </div>
+                    </div>
+                    <div class="hms-kpi-card kpi-warning hms-animate-fade-in hms-delay-2" t-on-click="fetch_consultation">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-clock-o" title="Pending Consultations"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.pendingConsultations"/></span>
+                            <span class="hms-kpi-label">Pending OP</span>
+                        </div>
+                    </div>
+                    <div class="hms-kpi-card kpi-success hms-animate-fade-in hms-delay-3" t-on-click="fetch_consultation">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-check-circle" title="Completed Consultations"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.completedConsultations"/></span>
+                            <span class="hms-kpi-label">Completed OP</span>
+                        </div>
+                    </div>
+                    <div class="hms-kpi-card kpi-secondary hms-animate-fade-in hms-delay-4" t-on-click="action_list_inpatient">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-bed" title="Active Inpatients"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.activeInpatients"/></span>
+                            <span class="hms-kpi-label">Active Inpatients</span>
+                        </div>
+                    </div>
+                    <div class="hms-kpi-card kpi-danger hms-animate-fade-in hms-delay-5" t-on-click="fetch_doctors_schedule">
+                        <div class="hms-kpi-icon">
+                            <i class="fa fa-heartbeat" title="Scheduled Surgeries"/>
+                        </div>
+                        <div class="hms-kpi-content">
+                            <span class="hms-kpi-value"><t t-esc="state.kpi.upcomingSurgeries"/></span>
+                            <span class="hms-kpi-label">Surgeries</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Workload Progress Summary -->
+                <div class="hms-workload-bar-wrapper hms-animate-fade-in">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold small text-uppercase text-muted">Today's Consultation Completion Rate</span>
+                        <span class="fw-bold text-primary"><t t-esc="completionPercentage"/>%</span>
+                    </div>
+                    <div class="hms-progress-stacked">
+                        <div class="hms-progress-segment seg-success" t-attf-style="width: {{completionPercentage}}%;" title="Completed"/>
+                        <div class="hms-progress-segment seg-warning" t-attf-style="width: {{100 - completionPercentage}}%;" title="Pending"/>
+                    </div>
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span><i class="fa fa-circle text-success me-1" title="Completed"/> Completed: <t t-esc="state.kpi.completedConsultations"/></span>
+                        <span><i class="fa fa-circle text-warning me-1" title="Pending"/> Awaiting: <t t-esc="state.kpi.pendingConsultations"/></span>
+                    </div>
+                </div>
+
+                <!-- Quick Navigation Shortcuts -->
+                <div class="hms-card mb-4 hms-animate-fade-in">
+                    <div class="hms-card-header">
+                        <h3><i class="fa fa-th-large text-primary" title="Shortcuts"/> Quick Workspace Actions</h3>
+                    </div>
+                    <div class="hms-card-body">
+                        <div class="hms-quick-actions">
+                            <div class="hms-quick-action-card" t-on-click="fetch_consultation">
+                                <div class="hms-quick-action-icon">
+                                    <i class="fa fa-stethoscope" title="Outpatient"/>
+                                </div>
+                                <h4 class="hms-quick-action-title">Consultations</h4>
+                            </div>
+                            <div class="hms-quick-action-card" t-on-click="list_patient_data">
+                                <div class="hms-quick-action-icon">
+                                    <i class="fa fa-user-md" title="Patients"/>
+                                </div>
+                                <h4 class="hms-quick-action-title">Patient Directory</h4>
+                            </div>
+                            <div class="hms-quick-action-card" t-on-click="action_list_inpatient">
+                                <div class="hms-quick-action-icon">
+                                    <i class="fa fa-hospital-o" title="Inpatients"/>
+                                </div>
+                                <h4 class="hms-quick-action-title">Inpatient Ward</h4>
+                            </div>
+                            <div class="hms-quick-action-card" t-on-click="fetch_doctors_schedule">
+                                <div class="hms-quick-action-icon">
+                                    <i class="fa fa-medkit" title="Surgery"/>
+                                </div>
+                                <h4 class="hms-quick-action-title">Surgery Theatre</h4>
+                            </div>
+                            <div class="hms-quick-action-card" t-on-click="fetch_allocation_lines">
+                                <div class="hms-quick-action-icon">
+                                    <i class="fa fa-calendar" title="Allocations"/>
+                                </div>
+                                <h4 class="hms-quick-action-title">Shift Allocations</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Workspace Two Columns -->
+                <div class="row g-4 hms-animate-fade-in">
+                    <!-- Left: Today's Consultations -->
+                    <div class="col-lg-7 col-12">
+                        <div class="hms-card">
+                            <div class="hms-card-header">
+                                <h3><i class="fa fa-list-alt text-primary" title="Consultations"/> Today's Consultations</h3>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="text" class="form-control form-control-sm" placeholder="Filter patient/ref..."
+                                           style="max-width: 170px;"
+                                           t-model="state.searchQuery"/>
+                                    <button class="hms-btn hms-btn-secondary py-1 px-2" t-on-click="fetch_consultation">
+                                        View All
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="hms-card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="hms-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Ref</th>
+                                                <th>Patient</th>
+                                                <th>Doctor</th>
+                                                <th>Status</th>
+                                                <th class="text-end">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-if="filteredConsultations.length === 0">
+                                                <tr>
+                                                    <td colspan="5" class="p-0">
+                                                        <div class="hms-empty-state">
+                                                            <div class="hms-empty-icon">
+                                                                <i class="fa fa-calendar-o" title="No appointments"/>
+                                                            </div>
+                                                            <div class="hms-empty-title">No Consultations Found</div>
+                                                            <div class="hms-empty-desc">There are no scheduled outpatient appointments matching your query for today.</div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                            <t t-foreach="filteredConsultations" t-as="con" t-key="con.id">
+                                                <tr>
+                                                    <td class="fw-bold"><t t-esc="con.op_reference"/></td>
+                                                    <td><t t-esc="con.patient_id ? con.patient_id[1] : '-'"/></td>
+                                                    <td><t t-esc="con.doctor_id ? con.doctor_id[1] : '-'"/></td>
+                                                    <td>
+                                                        <t t-if="con.state === 'draft'">
+                                                            <span class="hms-badge hms-badge-warning">Draft</span>
+                                                        </t>
+                                                        <t t-elif="con.state === 'op'">
+                                                            <span class="hms-badge hms-badge-info">OP</span>
+                                                        </t>
+                                                        <t t-elif="con.state === 'inpatient'">
+                                                            <span class="hms-badge hms-badge-primary">Inpatient</span>
+                                                        </t>
+                                                        <t t-elif="con.state === 'invoice'">
+                                                            <span class="hms-badge hms-badge-success">Invoiced</span>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span class="hms-badge hms-badge-danger"><t t-esc="con.state"/></span>
+                                                        </t>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <button class="hms-btn hms-btn-secondary py-1 px-2" t-on-click="() => this.openOutpatient(con.id)" title="Open Record">
+                                                            <i class="fa fa-external-link" title="Open"/>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Upcoming Surgeries -->
+                    <div class="col-lg-5 col-12">
+                        <div class="hms-card">
+                            <div class="hms-card-header">
+                                <h3><i class="fa fa-heartbeat text-danger" title="Surgeries"/> Upcoming Surgeries</h3>
+                                <button class="hms-btn hms-btn-secondary py-1 px-2" t-on-click="fetch_doctors_schedule">
+                                    View All
+                                </button>
+                            </div>
+                            <div class="hms-card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="hms-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Procedure</th>
+                                                <th>Patient</th>
+                                                <th>Status</th>
+                                                <th class="text-end">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-if="state.upcomingSurgeries.length === 0">
+                                                <tr>
+                                                    <td colspan="4" class="p-0">
+                                                        <div class="hms-empty-state">
+                                                            <div class="hms-empty-icon">
+                                                                <i class="fa fa-check-circle text-success" title="No surgery"/>
+                                                            </div>
+                                                            <div class="hms-empty-title">All Surgeries Cleared</div>
+                                                            <div class="hms-empty-desc">There are no upcoming or pending surgical operations in queue.</div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                            <t t-foreach="state.upcomingSurgeries" t-as="surg" t-key="surg.id">
+                                                <tr>
+                                                    <td class="fw-bold"><t t-esc="surg.name"/></td>
+                                                    <td><t t-esc="surg.inpatient_id ? surg.inpatient_id[1] : '-'"/></td>
+                                                    <td>
+                                                        <t t-if="surg.state === 'confirmed'">
+                                                            <span class="hms-badge hms-badge-primary">Confirmed</span>
+                                                        </t>
+                                                        <t t-elif="surg.state === 'done'">
+                                                            <span class="hms-badge hms-badge-success">Done</span>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span class="hms-badge hms-badge-warning">Draft</span>
+                                                        </t>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <button class="hms-btn hms-btn-secondary py-1 px-2" t-on-click="() => this.openSurgery(surg.id)" title="Open Surgery">
+                                                            <i class="fa fa-external-link" title="Open"/>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>
