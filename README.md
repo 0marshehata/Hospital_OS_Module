@@ -1,7 +1,7 @@
 # 🏥 Hospital Management OS
 
 <p align="center">
-  <img src="static/description/banner.jpg" alt="Hospital Management OS Banner" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"/>
+  <img src="static/description/icon.png" alt="Hospital Management OS Banner" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"/>
 </p>
 
 <p align="center">
