@@ -254,12 +254,10 @@ hospital_managment_os/
 
 - **Owner & Maintainer**: [Omar Shehata](https://omarshehata.onrender.com)
 - **Technical Module Name**: `hospital_managment_os`
-- **License**: [GNU Affero General Public License v3 (AGPL-3)](https://www.gnu.org/licenses/agpl-3.0.html)
 
-*Original base framework copyright (C) 2024-TODAY Cybrosys Technologies Pvt. Ltd., licensed under AGPL-3. Modernized, rebranded, production-hardened, and extended by Omar Shehata.*
 
 ---
 
 <p align="center">
-  <strong>Built with ❤️ for modern healthcare providers and clinicians.</strong>
+  <strong>Built with ❤️ By Omar Shehata</strong>
 </p>
